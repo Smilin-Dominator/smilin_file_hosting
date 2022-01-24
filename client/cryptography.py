@@ -26,6 +26,15 @@ class Crypto:
     def __init__(self) -> None:
         self.pub = None
         self.priv = None
+        self.get_keys()
+
+    def get_keys(self) -> None:
+        pubExists = Path("credentials/public.pem").exists()
+        priExists = Path("credentials/private.pem").exists()
+        if not (pubExists or priExists):
+            self.create_new_keys()
+        else:
+            self.load_existing_keys()
 
     def create_new_keys(self) -> None:
         pub, priv = newkeys(4096)
