@@ -55,5 +55,8 @@ async def get_all(username: str):
 async def get_file(username: str, encrypted_filename: str):
     table = RefTable
     table.name = username.lower().replace(" ", "")
-    path_to_file = Path.joinpath(files_path, encrypted_filename)
+    homedir = Path.joinpath(files_path, username)
+    if not homedir.exists():
+        homedir.mkdir()
+    path_to_file = Path.joinpath(homedir, encrypted_filename)
     return FileResponse(path=path_to_file, media_type="application/octet-stream", filename=path_to_file.name)
