@@ -44,5 +44,10 @@ venv/
 *.toml
 
 # Misc
-!requirements.txt
+!client/requirements.txt
+!server/requirements.txt
 !*\docker-compose.yml
+
+# Docker Data
+./server/db/
+./server/venv/
