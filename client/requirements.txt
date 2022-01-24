@@ -1,0 +1,8 @@
+fastapi~=0.73.0
+mariadb
+SQLAlchemy~=1.4.31
+pydantic~=1.9.0
+databases~=0.5.5
+uvicorn
+asyncpg
+psycopg2
