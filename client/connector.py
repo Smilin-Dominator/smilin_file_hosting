@@ -18,8 +18,8 @@
 """
 from requests import get, post
 from furl import furl
-from shutil import copyfileobj
-from pathlib import Path
+from cryptography import Crypto
+
 
 
 class API:
@@ -29,6 +29,7 @@ class API:
         self.username = username
         self.base_url = furl(server)
         self.base_url.path.segments = ["Devisha"]
+        self.crypto = Crypto()
 
     def get_all_files(self) -> list[dict]:
         url = self.base_url
@@ -39,7 +40,10 @@ class API:
     def download_file(self, filename: str):
         url = self.base_url
         url.path.segments.append("download")
-        file = get(url.tostr(), params={"encrypted_filename": filename}, stream=True)
+        enc_filename = self.crypto.encrypt_string(filename)
+        print(enc_filename)
+        print(self.crypto.decrypt_string(enc_filename))
+        file = get(url.tostr(), params={"encrypted_filename": str(enc_filename)}, stream=True)
         with open("file.a", "wb") as d:
             d.write(file.content)
 
