@@ -17,11 +17,12 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from databases import Database as Db
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import FileResponse
 from sqlalchemy import create_engine
 from formats import FileEntry, RefTable
 from pathlib import Path
+from shutil import copyfileobj
 
 DATABASE_URL = "postgresql://test:123@Postgres/app"
 files_path = Path("/files/")
@@ -60,3 +61,20 @@ async def get_file(username: str, encrypted_filename: str):
         homedir.mkdir()
     path_to_file = Path.joinpath(homedir, encrypted_filename)
     return FileResponse(path=path_to_file, media_type="application/octet-stream", filename=path_to_file.name)
+
+
+@app.post("/{username}/post/upload/{encrypted_filename}")
+async def get_file(username: str, encrypted_filename: str, file: UploadFile = File(...)):
+    table = RefTable
+    table.name = username.lower().replace(" ", "")
+    homedir = Path.joinpath(files_path, username)
+    if not homedir.exists():
+        homedir.mkdir()
+    path_to_file = Path.joinpath(homedir, encrypted_filename)
+    with open(path_to_file, "wb") as w:
+        copyfileobj(file.file, w)
+    query = table.insert().values(filename=encrypted_filename)
+    its_id = await database.execute(query)
+    return {
+        "inserted_id": its_id
+    }
