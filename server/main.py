@@ -16,6 +16,25 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+from databases import Database as Db
 from fastapi import FastAPI
+from sqlalchemy import create_engine
 
+from server.formats import FileEntry, RefTable
+
+DATABASE_URL = "mariadb+mariadbconnector://thedevi:testpw!@127.0.0.1:3306/app"
 app = FastAPI()
+
+database = Db(DATABASE_URL)
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+
+
+@app.on_event("startup")
+async def startup():
+    await database.connect()
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    await database.disconnect()
+
