@@ -19,6 +19,7 @@
 from pathlib import Path
 
 from rsa import newkeys, PrivateKey, PublicKey, encrypt, decrypt
+from binascii import hexlify
 
 
 class Crypto:
@@ -59,4 +60,4 @@ class Crypto:
         return text.decode('utf-8')
 
     def encrypt_string(self, string: str) -> bytes:
-        return encrypt(string.encode('utf-8'), self.pub)
+        return hexlify(encrypt(string.encode('utf-8'), self.pub))
