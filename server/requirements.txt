@@ -5,3 +5,4 @@ databases~=0.5.5
 uvicorn
 asyncpg
 psycopg2
+python-multipart
