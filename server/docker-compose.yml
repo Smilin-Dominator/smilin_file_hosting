@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:latest
+    container_name: Postgres
+    networks:
+      - main
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: 123
+    ports:
+      - "5432:5432"
+    volumes:
+      - "./db:/var/lib/postgresql/data"
+  api:
+    image: python:3.10-buster
+    container_name: API
+    working_dir: /app
+    command:
+      - ./run.sh
+    networks:
+      - main
+    ports:
+      - "2356:2356"
+    volumes:
+      - ".:/app"
+networks:
+  main:
+    driver: bridge

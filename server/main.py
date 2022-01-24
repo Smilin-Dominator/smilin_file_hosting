@@ -19,10 +19,9 @@
 from databases import Database as Db
 from fastapi import FastAPI
 from sqlalchemy import create_engine
+from formats import FileEntry, RefTable
 
-from server.formats import FileEntry, RefTable
-
-DATABASE_URL = "postgresql://test:123@127.0.0.1/app"
+DATABASE_URL = "postgresql://test:123@Postgres/app"
 app = FastAPI()
 
 database = Db(DATABASE_URL)
