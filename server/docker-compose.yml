@@ -25,6 +25,7 @@ services:
       - "2356:2356"
     volumes:
       - ".:/app"
+      - "./files:/app/files"
 networks:
   main:
     driver: bridge
