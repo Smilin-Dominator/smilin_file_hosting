@@ -53,7 +53,7 @@ async def get_all(username: str):
 
 
 @app.get("/{username}/download/")
-async def get_file(username: str, encrypted_filename: str):
+async def get_file(username: str, encrypted_filename: bytes):
     table = RefTable
     table.name = username.lower().replace(" ", "")
     homedir = Path.joinpath(files_path, username)
@@ -63,18 +63,18 @@ async def get_file(username: str, encrypted_filename: str):
     db_result = await database.fetch_one(table.select(table.c.filename == encrypted_filename))
     if not db_result:
         return False
-    path_to_file = Path.joinpath(homedir, encrypted_filename)
+    path_to_file = Path.joinpath(homedir, str(encrypted_filename))
     return FileResponse(path=path_to_file, media_type="application/octet-stream", filename=path_to_file.name)
 
 
 @app.post("/{username}/upload/")
-async def upload_file(username: str, encrypted_filename: str, file: UploadFile = File(...)):
+async def upload_file(username: str, encrypted_filename: bytes, file: UploadFile = File(...)):
     table = RefTable
     table.name = username.lower().replace(" ", "")
     homedir = Path.joinpath(files_path, username)
     if not homedir.exists():
         homedir.mkdir()
-    path_to_file = Path.joinpath(homedir, encrypted_filename)
+    path_to_file = Path.joinpath(homedir, str(encrypted_filename))
     with open(path_to_file, "wb") as w:
         copyfileobj(file.file, w)
     query = table.insert().values(filename=encrypted_filename)
