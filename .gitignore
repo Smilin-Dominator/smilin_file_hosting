@@ -42,3 +42,7 @@ venv/
 *.yml
 *.json
 *.toml
+
+# Misc
+!requirements.txt
+!*\docker-compose.yml
