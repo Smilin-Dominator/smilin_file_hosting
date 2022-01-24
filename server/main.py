@@ -22,7 +22,7 @@ from sqlalchemy import create_engine
 
 from server.formats import FileEntry, RefTable
 
-DATABASE_URL = "mariadb+mariadbconnector://thedevi:testpw!@127.0.0.1:3306/app"
+DATABASE_URL = "postgresql://test:123@127.0.0.1/app"
 app = FastAPI()
 
 database = Db(DATABASE_URL)
