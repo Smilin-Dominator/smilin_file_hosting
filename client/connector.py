@@ -19,6 +19,7 @@
 from requests import get, post
 from furl import furl
 from cryptography import Crypto
+from pathlib import Path
 
 
 
@@ -30,6 +31,7 @@ class API:
         self.base_url = furl(server)
         self.base_url.path.segments = ["Devisha"]
         self.crypto = Crypto()
+        self.files = Path("files")
 
     def get_all_files(self) -> list[dict]:
         url = self.base_url
@@ -41,9 +43,13 @@ class API:
         url = self.base_url
         url.path.segments.append("download")
         enc_filename = self.crypto.encrypt_string(filename)
-        print(enc_filename)
-        print(self.crypto.decrypt_string(enc_filename))
+        path_to_file = Path(self.files, filename)
+        if not self.files.exists():
+            self.files.mkdir()
         file = get(url.tostr(), params={"encrypted_filename": str(enc_filename)}, stream=True)
-        with open("file.a", "wb") as d:
-            d.write(file.content)
+        if file:
+            with open(path_to_file, "wb") as d:
+                d.write(file.content)
+        else:
+            print("No Such File!")
 
