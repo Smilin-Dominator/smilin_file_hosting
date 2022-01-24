@@ -1,4 +1,3 @@
-from rsa import newkeys, PrivateKey, PublicKey, encrypt, decrypt
 from pathlib import Path
 
 
@@ -21,9 +20,9 @@ class Crypto:
         self.pub = pub
 
     def load_existing_keys(self) -> None:
-        with open("./credentials/public.pem", "rb") as r:
-            self.priv = PrivateKey.load_pkcs1(r.read())
         with open("./credentials/private.pem", "rb") as r:
+            self.priv = PrivateKey.load_pkcs1(r.read())
+        with open("./credentials/public.pem", "rb") as r:
             self.pub = PublicKey.load_pkcs1(r.read())
 
     def decrypt_string(self, string: bytes) -> str:
