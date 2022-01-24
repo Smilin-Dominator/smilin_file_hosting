@@ -1,11 +1,13 @@
 from pathlib import Path
 
+from rsa import newkeys, PrivateKey, PublicKey, encrypt, decrypt
+
 
 class Crypto:
 
     def __init__(self) -> None:
-        self.pub = PublicKey(1, 1)
-        self.priv = PrivateKey(1, 1, 1, 1, 1)
+        self.pub = None
+        self.priv = None
 
     def create_new_keys(self) -> None:
         pub, priv = newkeys(4096)
