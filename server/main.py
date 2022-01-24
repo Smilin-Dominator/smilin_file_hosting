@@ -38,3 +38,12 @@ async def startup():
 async def shutdown():
     await database.disconnect()
 
+
+@app.get("/{username}/get/all", response_model=list[FileEntry])
+async def get_all(username: str):
+    table = RefTable
+    table.name = username.lower().replace(" ", "")
+    if not table.exists:
+        table.create()
+    q = table.select()
+    return await database.fetch_all(q)
