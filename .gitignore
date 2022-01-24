@@ -51,3 +51,4 @@ venv/
 # Docker Data
 server/db
 server/venv
+server/files

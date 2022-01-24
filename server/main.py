@@ -18,10 +18,13 @@
 """
 from databases import Database as Db
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from sqlalchemy import create_engine
 from formats import FileEntry, RefTable
+from pathlib import Path
 
 DATABASE_URL = "postgresql://test:123@Postgres/app"
+files_path = Path("/files/")
 app = FastAPI()
 
 database = Db(DATABASE_URL)
@@ -38,7 +41,7 @@ async def shutdown():
     await database.disconnect()
 
 
-@app.get("/{username}/get/all", response_model=list[FileEntry])
+@app.get("/{username}/get/list/all", response_model=list[FileEntry])
 async def get_all(username: str):
     table = RefTable
     table.name = username.lower().replace(" ", "")
@@ -46,3 +49,11 @@ async def get_all(username: str):
         table.create()
     q = table.select()
     return await database.fetch_all(q)
+
+
+@app.get("/{username}/get/download/{encrypted_filename}")
+async def get_file(username: str, encrypted_filename: str):
+    table = RefTable
+    table.name = username.lower().replace(" ", "")
+    path_to_file = Path.joinpath(files_path, encrypted_filename)
+    return FileResponse(path=path_to_file, media_type="application/octet-stream", filename=path_to_file.name)
