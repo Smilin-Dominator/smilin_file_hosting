@@ -52,3 +52,7 @@ venv/
 server/db
 server/venv
 server/files
+
+# Client Data
+client/credentials/
+client/files/
