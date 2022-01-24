@@ -1,12 +1,12 @@
-from rsa import newkeys, PrivateKey, PublicKey
+from rsa import newkeys, PrivateKey, PublicKey, encrypt, decrypt
 from pathlib import Path
 
 
 class Crypto:
 
     def __init__(self):
-        self.pub = PublicKey
-        self.priv = PrivateKey
+        self.pub = PublicKey(1, 1)
+        self.priv = PrivateKey(1, 1, 1, 1, 1)
 
     def create_new_keys(self):
         pub, priv = newkeys(4096)
@@ -25,3 +25,7 @@ class Crypto:
             self.priv = PrivateKey.load_pkcs1(r.read())
         with open("./credentials/private.pem", "wb") as r:
             self.pub = PublicKey.load_pkcs1(r.read())
+
+    def decrypt_string(self, string: bytes):
+        text = decrypt(string, self.priv)
+        return text.decode('utf-8')
