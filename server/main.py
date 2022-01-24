@@ -42,7 +42,7 @@ async def shutdown():
     await database.disconnect()
 
 
-@app.get("/{username}/get/list/all", response_model=list[FileEntry])
+@app.get("/{username}/list/all", response_model=list[FileEntry])
 async def get_all(username: str):
     table = RefTable
     table.name = username.lower().replace(" ", "")
@@ -52,7 +52,7 @@ async def get_all(username: str):
     return await database.fetch_all(q)
 
 
-@app.get("/{username}/get/download/{encrypted_filename}")
+@app.get("/{username}/download/")
 async def get_file(username: str, encrypted_filename: str):
     table = RefTable
     table.name = username.lower().replace(" ", "")
@@ -63,8 +63,8 @@ async def get_file(username: str, encrypted_filename: str):
     return FileResponse(path=path_to_file, media_type="application/octet-stream", filename=path_to_file.name)
 
 
-@app.post("/{username}/post/upload/{encrypted_filename}")
-async def get_file(username: str, encrypted_filename: str, file: UploadFile = File(...)):
+@app.post("/{username}/upload/")
+async def upload_file(username: str, encrypted_filename: str, file: UploadFile = File(...)):
     table = RefTable
     table.name = username.lower().replace(" ", "")
     homedir = Path.joinpath(files_path, username)
