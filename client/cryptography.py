@@ -29,5 +29,5 @@ class Crypto:
         text = decrypt(string, self.priv)
         return text.decode('utf-8')
 
-    def encrypt_string(self, string: str) -> str:
-        return str(encrypt(string.encode('utf-8'), self.pub))
+    def encrypt_string(self, string: str) -> bytes:
+        return encrypt(string.encode('utf-8'), self.pub)
