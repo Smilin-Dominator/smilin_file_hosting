@@ -17,11 +17,10 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from copy import deepcopy
-from requests import get, post
-from furl import furl
-from cryptography import Crypto
 from pathlib import Path
-from binascii import hexlify, unhexlify
+from furl import furl
+from requests import get, post
+from cryptography import Crypto
 
 
 class API:

@@ -16,3 +16,14 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+import time
+
+import connector
+
+a = connector.API("http://127.0.0.1:2356", "Devisha")
+a.download_file(1)
+a.download_file(2)
+a.download_file(3)
+a.download_file(4)
+a.download_file(5)
+a.download_file(6)
