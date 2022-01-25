@@ -56,5 +56,7 @@ class API:
     def upload_file(self, filename: str):
         url = deepcopy(self.base_url)
         url.path.segments.append("upload")
-        enc_filename = self.crypto.encrypt_string(filename)
-        post(url.tostr(), params={"encrypted_filename": enc_filename}, files={"file": open(filename, "rb")})
+        path_to_file = Path(filename)
+        real_filename = path_to_file.name
+        enc_filename = self.crypto.encrypt_string(real_filename)
+        post(url.tostr(), params={"encrypted_filename": enc_filename}, files={"file": open(path_to_file, "rb")})
