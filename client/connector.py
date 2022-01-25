@@ -53,3 +53,10 @@ class API:
         else:
             print("No Such File!")
 
+    def upload_file(self, filename: str):
+        url = self.base_url
+        url.path.segments.append("upload")
+        enc_filename = self.crypto.encrypt_string(filename)
+        post(url.tostr(), params={"encrypted_filename": enc_filename}, files={"file": open(filename, "rb")})
+
+
