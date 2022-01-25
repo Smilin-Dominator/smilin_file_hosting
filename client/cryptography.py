@@ -19,7 +19,7 @@
 from pathlib import Path
 
 from rsa import newkeys, PrivateKey, PublicKey, encrypt, decrypt
-from binascii import hexlify
+from binascii import hexlify, unhexlify
 
 
 class Crypto:
@@ -56,7 +56,7 @@ class Crypto:
             self.pub = PublicKey.load_pkcs1(r.read())
 
     def decrypt_string(self, string: bytes) -> str:
-        text = decrypt(string, self.priv)
+        text = decrypt(unhexlify(string), self.priv)
         return text.decode('utf-8')
 
     def encrypt_string(self, string: str) -> bytes:

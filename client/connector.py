@@ -16,6 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+from re import findall
 from requests import get, post
 from furl import furl
 from cryptography import Crypto
@@ -39,15 +40,15 @@ class API:
         url.path.segments.append("all")
         return get(url.tostr()).json()
 
-    def download_file(self, filename: str):
+    def download_file(self, id: int):
         url = self.base_url
         url.path.segments.append("download")
-        enc_filename = self.crypto.encrypt_string(filename)
-        path_to_file = Path(self.files, filename)
         if not self.files.exists():
             self.files.mkdir()
-        file = get(url.tostr(), params={"encrypted_filename": enc_filename}, stream=True)
+        file = get(url.tostr(), params={"id": id}, stream=True)
         if file:
+            filename = file.headers.get("Content-Disposition")[29:]
+            path_to_file = Path(self.files, self.crypto.decrypt_string(filename))
             with open(path_to_file, "wb") as d:
                 d.write(file.content)
         else:
@@ -58,5 +59,3 @@ class API:
         url.path.segments.append("upload")
         enc_filename = self.crypto.encrypt_string(filename)
         post(url.tostr(), params={"encrypted_filename": enc_filename}, files={"file": open(filename, "rb")})
-
-

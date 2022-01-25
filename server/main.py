@@ -54,19 +54,19 @@ async def get_all(username: str):
 
 
 @app.get("/{username}/download/")
-async def get_file(username: str, encrypted_filename: bytes):
+async def get_file(username: str, id: int):
     table = RefTable
     table.name = username.lower().replace(" ", "")
     homedir = Path.joinpath(files_path, username)
     if not homedir.exists():
         homedir.mkdir()
         return False
-    db_result = await database.fetch_one(table.select(table.c.filename == encrypted_filename))
+    db_result = await database.fetch_one(table.select(table.c.id == id))
     if not db_result:
         return False
     else:
         path_to_file = Path.joinpath(homedir, db_result['hash'])
-        return FileResponse(path=path_to_file, media_type="application/octet-stream", filename=str(encrypted_filename))
+        return FileResponse(path=path_to_file, media_type="application/octet-stream", filename=db_result['filename'])
 
 
 @app.post("/{username}/upload/")
