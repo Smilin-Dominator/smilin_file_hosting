@@ -23,6 +23,7 @@ from sqlalchemy import create_engine
 from formats import FileEntry, RefTable
 from pathlib import Path
 from shutil import copyfileobj
+from hashlib import sha256
 
 DATABASE_URL = "postgresql://test:123@Postgres/app"
 files_path = Path("/files/")
@@ -63,8 +64,9 @@ async def get_file(username: str, encrypted_filename: bytes):
     db_result = await database.fetch_one(table.select(table.c.filename == encrypted_filename))
     if not db_result:
         return False
-    path_to_file = Path.joinpath(homedir, str(encrypted_filename))
-    return FileResponse(path=path_to_file, media_type="application/octet-stream", filename=path_to_file.name)
+    else:
+        path_to_file = Path.joinpath(homedir, db_result['hash'])
+        return FileResponse(path=path_to_file, media_type="application/octet-stream", filename=str(encrypted_filename))
 
 
 @app.post("/{username}/upload/")
@@ -74,10 +76,11 @@ async def upload_file(username: str, encrypted_filename: bytes, file: UploadFile
     homedir = Path.joinpath(files_path, username)
     if not homedir.exists():
         homedir.mkdir()
-    path_to_file = Path.joinpath(homedir, str(encrypted_filename))
+    hashed = sha256(encrypted_filename).hexdigest()
+    path_to_file = Path.joinpath(homedir, hashed)
     with open(path_to_file, "wb") as w:
         copyfileobj(file.file, w)
-    query = table.insert().values(filename=encrypted_filename)
+    query = table.insert().values(filename=encrypted_filename, hash=hashed)
     its_id = await database.execute(query)
     return {
         "inserted_id": its_id
