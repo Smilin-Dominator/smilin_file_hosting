@@ -20,7 +20,7 @@ from requests import get, post
 from furl import furl
 from cryptography import Crypto
 from pathlib import Path
-
+from binascii import hexlify, unhexlify
 
 
 class API:
@@ -46,7 +46,7 @@ class API:
         path_to_file = Path(self.files, filename)
         if not self.files.exists():
             self.files.mkdir()
-        file = get(url.tostr(), params={"encrypted_filename": str(enc_filename)}, stream=True)
+        file = get(url.tostr(), params={"encrypted_filename": enc_filename}, stream=True)
         if file:
             with open(path_to_file, "wb") as d:
                 d.write(file.content)
