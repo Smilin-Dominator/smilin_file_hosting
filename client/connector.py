@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-from re import findall
+from copy import deepcopy
 from requests import get, post
 from furl import furl
 from cryptography import Crypto
@@ -35,13 +35,13 @@ class API:
         self.files = Path("files")
 
     def get_all_files(self) -> list[dict]:
-        url = self.base_url
+        url = deepcopy(self.base_url)
         url.path.segments.append("list")
         url.path.segments.append("all")
         return get(url.tostr()).json()
 
     def download_file(self, id: int):
-        url = self.base_url
+        url = deepcopy(self.base_url)
         url.path.segments.append("download")
         if not self.files.exists():
             self.files.mkdir()
@@ -55,7 +55,7 @@ class API:
             print("No Such File!")
 
     def upload_file(self, filename: str):
-        url = self.base_url
+        url = deepcopy(self.base_url)
         url.path.segments.append("upload")
         enc_filename = self.crypto.encrypt_string(filename)
         post(url.tostr(), params={"encrypted_filename": enc_filename}, files={"file": open(filename, "rb")})
