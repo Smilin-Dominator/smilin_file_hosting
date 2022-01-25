@@ -24,6 +24,7 @@ from formats import FileEntry, RefTable
 from pathlib import Path
 from shutil import copyfileobj
 from hashlib import sha256
+from copy import deepcopy
 
 DATABASE_URL = "postgresql://test:123@Postgres/app"
 files_path = Path("/files/")
@@ -45,7 +46,7 @@ async def shutdown():
 
 @app.get("/{username}/list/all", response_model=list[FileEntry])
 async def get_all(username: str):
-    table = RefTable
+    table = deepcopy(RefTable)
     table.name = username.lower().replace(" ", "")
     if not table.exists:
         table.create()
@@ -55,7 +56,7 @@ async def get_all(username: str):
 
 @app.get("/{username}/download/")
 async def get_file(username: str, id: int):
-    table = RefTable
+    table = deepcopy(RefTable)
     table.name = username.lower().replace(" ", "")
     homedir = Path.joinpath(files_path, username)
     if not homedir.exists():
@@ -71,7 +72,7 @@ async def get_file(username: str, id: int):
 
 @app.post("/{username}/upload/")
 async def upload_file(username: str, encrypted_filename: bytes, file: UploadFile = File(...)):
-    table = RefTable
+    table = deepcopy(RefTable)
     table.name = username.lower().replace(" ", "")
     homedir = Path.joinpath(files_path, username)
     if not homedir.exists():
