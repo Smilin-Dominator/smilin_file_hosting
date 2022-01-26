@@ -22,7 +22,8 @@ from sqlalchemy import Table, MetaData, Column, Integer, BINARY, Text
 
 class FileEntry(BaseModel):
     id: int
-    filename: str
+    filename: bytes
+    hash: str
 
 
 class FileInput(BaseModel):

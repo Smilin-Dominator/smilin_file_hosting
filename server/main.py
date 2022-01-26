@@ -50,8 +50,7 @@ async def get_all(username: str):
     table.name = username.lower().replace(" ", "")
     if not table.exists:
         table.create()
-    q = table.select()
-    return await database.fetch_all(q)
+    return await database.fetch_all(table.select())
 
 
 @app.get("/{username}/download/")
