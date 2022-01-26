@@ -99,11 +99,12 @@ async def delete_file(username: str, id: int):
     if not homedir.exists():
         homedir.mkdir()
         return False
-    file = await database.fetch_one(table.c.id == id)
+    file = await database.fetch_one(table.select(table.c.id == id))
     if not file:
         return False
     else:
         path_to_file = Path.joinpath(homedir, file['hash'])
         path_to_file.unlink()
+        await database.execute(table.delete(table.c.id == id))
         return True
 
