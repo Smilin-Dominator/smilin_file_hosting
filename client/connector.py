@@ -33,6 +33,9 @@ class API:
         self.crypto = Crypto()
         self.files = Path("files")
 
+    def set_url(self, url: str):
+        self.base_url = furl(url)
+
     def get_all_files(self) -> list[dict]:
         url = deepcopy(self.base_url)
         url.path.segments.append("list")
