@@ -21,6 +21,7 @@ from tkinter import Tk, filedialog, Button, LabelFrame, Label, Entry, END, Y, LE
 from connector import API
 from cryptography import Crypto
 from functools import partial
+from threading import Thread
 
 root = Tk()
 connector = API("", "")
@@ -64,8 +65,8 @@ def upload_file():
     if fname in "." or "":
         pass
     else:
-        current_file = Label(uploading, text=fname)
-        current_file.pack()
+        current_file = Label(uploading, text=fname, justify="left")
+        current_file.pack(fill="x")
         connector.upload_file(fname)
         current_file.destroy()
         list_items()
@@ -80,7 +81,7 @@ def list_items():
         filename: str = crypto.decrypt_string(encrypted_filename)
         container: Frame = Frame(files_section)
         label: Label = Label(container, text=filename)
-        download: Button = Button(container, text="Download", command=partial(download_file, id, filename))
+        download: Button = Button(container, text="Download", command=partial(Thread(target=download_file, args=[id, filename]).start))
         delete: Button = Button(container, text="Delete", command=partial(delete_file, id))
         label.pack(side="left")
         download.pack(side="right")
