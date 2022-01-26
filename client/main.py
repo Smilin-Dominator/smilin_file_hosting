@@ -24,12 +24,13 @@ root = Tk()
 connector = API("", "")
 
 
+# ------------------ Functions -----------------------------------#
 def main_package():
 
     status_section.pack(side=RIGHT, fill=Y)
-    uploading.pack()
-    downloading.pack()
     upload.pack()
+    uploading.pack(fill=Y, expand=True)
+    downloading.pack(fill=Y, expand=True)
 
     files_section.pack(fill="both", side="top", expand=True)
 
@@ -74,10 +75,12 @@ def upload_file():
         connector.upload_file(fname)
 
 
+# ---------------------- Elements --------------------------------------------#
+
 # The Status Section
 status_section = LabelFrame(root, text="Status")
-downloading = Label(status_section, text="Now Downloading: ", justify="left")
-uploading = Label(status_section, text="Now Uploading: ", justify="left")
+downloading = LabelFrame(status_section, text="Downloading")
+uploading = LabelFrame(status_section, text="Uploading")
 
 # The Upload Button
 upload = Button(status_section, command=upload_file, text="Upload File")
@@ -94,6 +97,7 @@ save_creds = Button(credentials_section, text="Connect", command=write_config)
 files_section = LabelFrame(root, text="Files")
 
 
+# --------------- Program ----------------------------#
 if __name__ == "__main__":
     root.geometry("800x500")
 
