@@ -16,14 +16,92 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-import time
+from json import loads, dumps
+from tkinter import Tk, filedialog, Button, LabelFrame, Label, Entry, END, Y, LEFT, RIGHT
+from connector import API
 
-import connector
+root = Tk()
+connector = API("", "")
 
-a = connector.API("http://127.0.0.1:2356", "Devisha")
-a.download_file(1)
-a.download_file(2)
-a.download_file(3)
-a.download_file(4)
-a.download_file(5)
-a.download_file(6)
+
+def main_package():
+
+    status_section.pack(side=RIGHT, fill=Y)
+    uploading.pack()
+    downloading.pack()
+    upload.pack()
+
+    files_section.pack(fill="both", side="top", expand=True)
+
+
+def read_config():
+    out = {}
+    try:
+        with open("credentials/config.json", "r") as r:
+            out = loads(r.read())
+        connector.set_url(out["url"])
+        link.delete(0, END)
+        link.insert(0, out["url"])
+        connector.username = out["username"]
+        username.delete(0, END)
+        username.insert(0, out["username"])
+        main_package()
+    except FileNotFoundError:
+        pass
+    except KeyError:
+        pass
+
+
+def write_config():
+    user = username.get()
+    url = link.get()
+    out = {
+        "username": user,
+        "url": url
+    }
+    with open("credentials/config.json", "w") as w:
+        w.write(dumps(out, indent=4))
+        w.flush()
+        w.close()
+    main_package()
+
+
+def upload_file():
+    fname = filedialog.askopenfilename(title="Select A File To Upload!")
+    if fname in "." or "":
+        pass
+    else:
+        connector.upload_file(fname)
+
+
+# The Status Section
+status_section = LabelFrame(root, text="Status")
+downloading = Label(status_section, text="Now Downloading: ", justify="left")
+uploading = Label(status_section, text="Now Uploading: ", justify="left")
+
+# The Upload Button
+upload = Button(status_section, command=upload_file, text="Upload File")
+
+# The Credentials Section
+credentials_section = LabelFrame(root, text="Credentials")
+username = Entry(credentials_section)
+username.insert(0, "Username")
+link = Entry(credentials_section)
+link.insert(0, "Link")
+save_creds = Button(credentials_section, text="Connect", command=write_config)
+
+# The Files Section
+files_section = LabelFrame(root, text="Files")
+
+
+if __name__ == "__main__":
+    root.geometry("800x500")
+
+    credentials_section.pack(side=LEFT, fill=Y)
+    username.pack()
+    link.pack()
+    save_creds.pack()
+
+    read_config()
+
+    root.mainloop()
