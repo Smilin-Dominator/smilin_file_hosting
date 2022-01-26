@@ -52,6 +52,25 @@ def delete_file(id: int):
     list_items()
 
 
+def download_file(id: int, filename: str):
+    current_file = Label(downloading, text=filename)
+    current_file.pack()
+    connector.download_file(id)
+    current_file.destroy()
+
+
+def upload_file():
+    fname = filedialog.askopenfilename(title="Select A File To Upload!")
+    if fname in "." or "":
+        pass
+    else:
+        current_file = Label(uploading, text=fname)
+        current_file.pack()
+        connector.upload_file(fname)
+        current_file.destroy()
+        list_items()
+
+
 def list_items():
     items = connector.get_all_files()
     [child.destroy() for child in files_section.winfo_children()]
@@ -61,7 +80,7 @@ def list_items():
         filename: str = crypto.decrypt_string(encrypted_filename)
         container: Frame = Frame(files_section)
         label: Label = Label(container, text=filename)
-        download: Button = Button(container, text="Download", command=partial(connector.download_file, id))
+        download: Button = Button(container, text="Download", command=partial(download_file, id, filename))
         delete: Button = Button(container, text="Delete", command=partial(delete_file, id))
         label.pack(side="left")
         download.pack(side="right")
@@ -97,15 +116,6 @@ def write_config():
     set_creds(out)
     main_package()
     list_items()
-
-
-def upload_file():
-    fname = filedialog.askopenfilename(title="Select A File To Upload!")
-    if fname in "." or "":
-        pass
-    else:
-        connector.upload_file(fname)
-        list_items()
 
 
 # ---------------------- Elements --------------------------------------------#
