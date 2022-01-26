@@ -47,6 +47,11 @@ def main_package():
     files_section.pack(fill="both", side="top", expand=True)
 
 
+def delete_file(id: int):
+    connector.delete_file(id)
+    list_items()
+
+
 def list_items():
     items = connector.get_all_files()
     [child.destroy() for child in files_section.winfo_children()]
@@ -57,7 +62,7 @@ def list_items():
         container: Frame = Frame(files_section)
         label: Label = Label(container, text=filename)
         download: Button = Button(container, text="Download", command=partial(connector.download_file, id))
-        delete: Button = Button(container, text="Delete", command=partial(connector.delete_file, id))
+        delete: Button = Button(container, text="Delete", command=partial(delete_file, id))
         label.pack(side="left")
         download.pack(side="right")
         delete.pack(side="right")
