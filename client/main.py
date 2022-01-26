@@ -17,14 +17,26 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from json import loads, dumps
-from tkinter import Tk, filedialog, Button, LabelFrame, Label, Entry, END, Y, LEFT, RIGHT
+from tkinter import Tk, filedialog, Button, LabelFrame, Label, Entry, END, Y, LEFT, RIGHT, Frame
 from connector import API
+from cryptography import Crypto
+from functools import partial
 
 root = Tk()
 connector = API("", "")
+crypto = Crypto()
 
 
 # ------------------ Functions -----------------------------------#
+def set_creds(out: dict):
+    connector.set_username(out["username"])
+    connector.set_url(out["url"])
+    link.delete(0, END)
+    link.insert(0, out["url"])
+    username.delete(0, END)
+    username.insert(0, out["username"])
+
+
 def main_package():
 
     status_section.pack(side=RIGHT, fill=Y)
@@ -35,18 +47,31 @@ def main_package():
     files_section.pack(fill="both", side="top", expand=True)
 
 
+def list_items():
+    items = connector.get_all_files()
+    [child.destroy() for child in files_section.winfo_children()]
+    for file in items:
+        encrypted_filename: bytes = file["filename"]
+        id: int = file["id"]
+        filename: str = crypto.decrypt_string(encrypted_filename)
+        container: Frame = Frame(files_section)
+        label: Label = Label(container, text=filename)
+        download: Button = Button(container, text="Download", command=partial(connector.download_file, id))
+        delete: Button = Button(container, text="Delete", command=partial(connector.delete_file, id))
+        label.pack(side="left")
+        download.pack(side="right")
+        delete.pack(side="right")
+        container.pack(fill="x")
+
+
 def read_config():
     out = {}
     try:
         with open("credentials/config.json", "r") as r:
             out = loads(r.read())
-        connector.set_url(out["url"])
-        link.delete(0, END)
-        link.insert(0, out["url"])
-        connector.username = out["username"]
-        username.delete(0, END)
-        username.insert(0, out["username"])
+        set_creds(out)
         main_package()
+        list_items()
     except FileNotFoundError:
         pass
     except KeyError:
@@ -64,7 +89,9 @@ def write_config():
         w.write(dumps(out, indent=4))
         w.flush()
         w.close()
+    set_creds(out)
     main_package()
+    list_items()
 
 
 def upload_file():
@@ -73,6 +100,7 @@ def upload_file():
         pass
     else:
         connector.upload_file(fname)
+        list_items()
 
 
 # ---------------------- Elements --------------------------------------------#
