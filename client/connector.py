@@ -19,7 +19,7 @@
 from copy import deepcopy
 from pathlib import Path
 from furl import furl
-from requests import get, post
+from requests import get, post, delete
 from cryptography import Crypto
 
 
@@ -52,6 +52,15 @@ class API:
                 d.write(file.content)
         else:
             print("No Such File!")
+
+    def delete_file(self, id: int):
+        url = deepcopy(self.base_url)
+        url.path.segments.append("delete")
+        file = delete(url.tostr(), params={"id": id})
+        if not file.content == b'false':
+            print("Success!")
+        else:
+            print("Didn't Work!")
 
     def upload_file(self, filename: str):
         url = deepcopy(self.base_url)
