@@ -25,6 +25,7 @@ from pathlib import Path
 from shutil import copyfileobj
 from hashlib import sha256
 from copy import deepcopy
+from datetime import datetime
 
 DATABASE_URL = "postgresql://test:123@Postgres/app"
 files_path = Path("/files/")
@@ -76,11 +77,13 @@ async def upload_file(username: str, encrypted_filename: bytes, file: UploadFile
     homedir = Path.joinpath(files_path, username)
     if not homedir.exists():
         homedir.mkdir()
-    hashed = sha256(encrypted_filename).hexdigest()
+    time_of_uploading = datetime.now()
+    tbh = ",".join([str(encrypted_filename), time_of_uploading.ctime()]).encode()
+    hashed = sha256(tbh).hexdigest()
     path_to_file = Path.joinpath(homedir, hashed)
     with open(path_to_file, "wb") as w:
         copyfileobj(file.file, w)
-    query = table.insert().values(filename=encrypted_filename, hash=hashed)
+    query = table.insert().values(filename=encrypted_filename, hash=hashed, time=time_of_uploading)
     its_id = await database.execute(query)
     return {
         "inserted_id": its_id

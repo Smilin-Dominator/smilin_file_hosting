@@ -17,7 +17,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from pydantic import BaseModel
-from sqlalchemy import Table, MetaData, Column, Integer, BINARY, Text
+from sqlalchemy import Table, MetaData, Column, Integer, BINARY, Text, TIMESTAMP
 
 
 class FileEntry(BaseModel):
@@ -35,5 +35,6 @@ RefTable = Table(
     MetaData(),
     Column("id", Integer, primary_key=True),
     Column("filename", BINARY),
-    Column("hash", Text)
+    Column("hash", Text),
+    Column("time", TIMESTAMP)
 )
