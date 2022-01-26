@@ -51,7 +51,7 @@ class API:
         if not self.files.exists():
             self.files.mkdir()
         file = get(url.tostr(), params={"id": id}, stream=True)
-        if file.content == b'False':
+        if file.content != b'False':
             filename = file.headers.get("Content-Disposition")[29:]
             path_to_file = Path(self.files, self.crypto.decrypt_string(filename))
             with open(path_to_file, "wb") as d:
