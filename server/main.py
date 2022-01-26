@@ -51,6 +51,7 @@ async def get_all(username: str):
     table.name = username.lower().replace(" ", "")
     if not table.exists:
         table.create()
+        return False
     return await database.fetch_all(table.select())
 
 
@@ -88,3 +89,21 @@ async def upload_file(username: str, encrypted_filename: bytes, file: UploadFile
     return {
         "inserted_id": its_id
     }
+
+
+@app.delete("/{username}/delete")
+async def delete_file(username: str, id: int):
+    table = deepcopy(RefTable)
+    table.name = username.lower().replace(" ", "")
+    homedir = Path.joinpath(files_path, username)
+    if not homedir.exists():
+        homedir.mkdir()
+        return False
+    file = await database.fetch_one(table.c.id == id)
+    if not file:
+        return False
+    else:
+        path_to_file = Path.joinpath(homedir, file['hash'])
+        path_to_file.unlink()
+        return True
+
