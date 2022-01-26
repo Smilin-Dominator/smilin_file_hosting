@@ -17,15 +17,18 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from json import loads, dumps
-from tkinter import Tk, filedialog, Button, LabelFrame, Label, Entry, END, Y, LEFT, RIGHT, Frame
+from tkinter import Tk, filedialog, Button, LabelFrame, Label, Entry, END, LEFT, RIGHT, Frame
 from connector import API
 from cryptography import Crypto
 from functools import partial
 from threading import Thread
+from pathlib import Path
+from queue import Queue
 
 root = Tk()
 connector = API("", "")
 crypto = Crypto()
+q = Queue()
 
 
 # ------------------ Functions -----------------------------------#
@@ -40,10 +43,10 @@ def set_creds(out: dict):
 
 def main_package():
 
-    status_section.pack(side=RIGHT, fill=Y)
+    status_section.pack(side=RIGHT, fill="y")
     upload.pack()
-    uploading.pack(fill=Y, expand=True)
-    downloading.pack(fill=Y, expand=True)
+    uploading.pack(fill="both", expand=True)
+    downloading.pack(fill="both", expand=True)
 
     files_section.pack(fill="both", side="top", expand=True)
 
@@ -65,7 +68,8 @@ def upload_file():
     if fname in "." or "":
         pass
     else:
-        current_file = Label(uploading, text=fname, justify="left")
+        raw_filename = Path(fname).name
+        current_file = Label(uploading, text=raw_filename, justify="left")
         current_file.pack(fill="x")
         connector.upload_file(fname)
         current_file.destroy()
@@ -127,7 +131,7 @@ downloading = LabelFrame(status_section, text="Downloading")
 uploading = LabelFrame(status_section, text="Uploading")
 
 # The Upload Button
-upload = Button(status_section, command=upload_file, text="Upload File")
+upload = Button(status_section, command=partial(Thread(target=upload_file).start), text="Upload File")
 
 # The Credentials Section
 credentials_section = LabelFrame(root, text="Credentials")
@@ -145,7 +149,7 @@ files_section = LabelFrame(root, text="Files")
 if __name__ == "__main__":
     root.geometry("800x500")
 
-    credentials_section.pack(side=LEFT, fill=Y)
+    credentials_section.pack(side=LEFT, fill="y")
     username.pack()
     link.pack()
     save_creds.pack()
