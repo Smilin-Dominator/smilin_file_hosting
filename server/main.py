@@ -45,7 +45,7 @@ async def shutdown():
     await database.disconnect()
 
 
-@app.get("/{username}/list/all", response_model=list[FileEntry])
+@app.get("/{username}/list/", response_model=list[FileEntry])
 async def get_all(username: str):
     table = deepcopy(RefTable)
     table.name = username.lower().replace(" ", "")
