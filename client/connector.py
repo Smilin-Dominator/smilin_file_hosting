@@ -29,17 +29,20 @@ class API:
         self.server = server
         self.username = username
         self.base_url = furl(server)
-        self.base_url.path.segments = ["Devisha"]
+        self.base_url.path.segments = [username]
         self.crypto = Crypto()
         self.files = Path("files")
 
+    def set_username(self, user: str):
+        self.username = user
+
     def set_url(self, url: str):
         self.base_url = furl(url)
+        self.base_url.path.segments = [self.username]
 
     def get_all_files(self) -> list[dict]:
         url = deepcopy(self.base_url)
         url.path.segments.append("list")
-        url.path.segments.append("all")
         return get(url.tostr()).json()
 
     def download_file(self, id: int):
