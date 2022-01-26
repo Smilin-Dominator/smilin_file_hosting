@@ -28,7 +28,8 @@ from queue import Queue
 root = Tk()
 connector = API("", "")
 crypto = Crypto()
-q = Queue()
+download_queue = Queue(maxsize=0)
+upload_queue = Queue(maxsize=0)
 
 
 # ------------------ Functions -----------------------------------#
@@ -56,24 +57,40 @@ def delete_file(id: int):
     list_items()
 
 
-def download_file(id: int, filename: str):
+def download_proxy(id: int, filename: str):
+    download_queue.put_nowait((id, filename))
+    Thread(target=download_file, daemon=True).start()
+
+
+def download_file():
+    id, filename = download_queue.get()
     current_file = Label(downloading, text=filename)
     current_file.pack()
+    print(f"Downloading: {filename}")
     connector.download_file(id)
     current_file.destroy()
+    download_queue.task_done()
 
 
-def upload_file():
+def upload_proxy():
     fname = filedialog.askopenfilename(title="Select A File To Upload!")
     if fname in "." or "":
         pass
     else:
-        raw_filename = Path(fname).name
-        current_file = Label(uploading, text=raw_filename, justify="left")
-        current_file.pack(fill="x")
-        connector.upload_file(fname)
-        current_file.destroy()
-        list_items()
+        upload_queue.put_nowait(fname)
+        Thread(target=upload_file, daemon=True).start()
+
+
+def upload_file():
+    fname = upload_queue.get()
+    raw_filename = Path(fname).name
+    current_file = Label(uploading, text=raw_filename, justify="left")
+    current_file.pack(fill="x")
+    print(f"Uploading: {raw_filename}")
+    connector.upload_file(fname)
+    current_file.destroy()
+    list_items()
+    upload_queue.task_done()
 
 
 def list_items():
@@ -85,7 +102,7 @@ def list_items():
         filename: str = crypto.decrypt_string(encrypted_filename)
         container: Frame = Frame(files_section)
         label: Label = Label(container, text=filename)
-        download: Button = Button(container, text="Download", command=partial(Thread(target=download_file, args=[id, filename]).start))
+        download: Button = Button(container, text="Download", command=partial(download_proxy, id, filename))
         delete: Button = Button(container, text="Delete", command=partial(delete_file, id))
         label.pack(side="left")
         download.pack(side="right")
@@ -131,7 +148,7 @@ downloading = LabelFrame(status_section, text="Downloading")
 uploading = LabelFrame(status_section, text="Uploading")
 
 # The Upload Button
-upload = Button(status_section, command=partial(Thread(target=upload_file).start), text="Upload File")
+upload = Button(status_section, command=upload_proxy, text="Upload File")
 
 # The Credentials Section
 credentials_section = LabelFrame(root, text="Credentials")
@@ -153,6 +170,8 @@ if __name__ == "__main__":
     username.pack()
     link.pack()
     save_creds.pack()
+
+    # Thread(target=upload_file, daemon=True).start()
 
     read_config()
 
