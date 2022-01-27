@@ -35,7 +35,17 @@ delete_queue = Queue(maxsize=20)
 refresh_lock = RLock()
 
 
-# ------------------ Functions -----------------------------------#
+# ------------------ Proxies -----------------------------------#
+def upload_proxy():
+    fnames = filedialog.askopenfilenames(title="Select A File To Upload!")
+    for filename in fnames:
+        if "" or "." == filename:
+            continue
+        else:
+            upload_queue.put(filename)
+            Thread(target=upload_file, daemon=True).start()
+
+
 def refresh_proxy():
     Thread(target=list_items, daemon=True).start()
 
@@ -43,6 +53,13 @@ def refresh_proxy():
 def delete_proxy(id: int):
     delete_queue.put(id)
     Thread(target=delete_file).start()
+
+
+def download_proxy(id: int, filename: str):
+    download_queue.put((id, filename))
+    Thread(target=download_file, daemon=True).start()
+
+# ------------------ Functions -----------------------------------#
 
 
 def set_creds(out: dict):
@@ -71,11 +88,6 @@ def delete_file():
     list_items()
 
 
-def download_proxy(id: int, filename: str):
-    download_queue.put((id, filename))
-    Thread(target=download_file, daemon=True).start()
-
-
 def download_file():
     id, filename = download_queue.get()
     current_file = Label(downloading, text=filename)
@@ -84,16 +96,6 @@ def download_file():
     connector.download_file(id)
     current_file.destroy()
     download_queue.task_done()
-
-
-def upload_proxy():
-    fnames = filedialog.askopenfilenames(title="Select A File To Upload!")
-    for filename in fnames:
-        if "" or "." == filename:
-            continue
-        else:
-            upload_queue.put(filename)
-            Thread(target=upload_file, daemon=True).start()
 
 
 def upload_file():
