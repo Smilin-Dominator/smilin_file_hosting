@@ -32,6 +32,7 @@ crypto = Crypto()
 download_queue = Queue(maxsize=5)
 upload_queue = Queue(maxsize=5)
 delete_queue = Queue(maxsize=20)
+refresh_queue = Queue(maxsize=1)
 refresh_lock = RLock()
 
 
@@ -47,12 +48,15 @@ def upload_proxy():
 
 
 def refresh_proxy():
-    Thread(target=list_items, daemon=True).start()
+    full: bool = refresh_queue.full()
+    if not full:
+        refresh_queue.put(0)
+        Thread(target=list_items, daemon=True).start()
 
 
 def delete_proxy(id: int):
     delete_queue.put(id)
-    Thread(target=delete_file).start()
+    Thread(target=delete_file, daemon=True).start()
 
 
 def download_proxy(id: int, filename: str):
@@ -85,7 +89,8 @@ def main_package():
 def delete_file():
     id = delete_queue.get()
     connector.delete_file(id)
-    list_items()
+    refresh_proxy()
+    delete_queue.task_done()
 
 
 def download_file():
@@ -106,11 +111,12 @@ def upload_file():
     print(f"Uploading: {raw_filename}")
     connector.upload_file(fname)
     current_file.destroy()
-    list_items()
+    refresh_proxy()
     upload_queue.task_done()
 
 
 def list_items():
+    refresh_queue.get()
     refresh_lock.acquire()
     items = connector.get_all_files()
     [child.destroy() for child in files_section.winfo_children()]
@@ -128,6 +134,7 @@ def list_items():
         container.pack(fill="x")
     sleep(0.3499)
     refresh_lock.release()
+    refresh_queue.task_done()
 
 
 def read_config():
