@@ -31,12 +31,18 @@ connector = API("", "")
 crypto = Crypto()
 download_queue = Queue(maxsize=5)
 upload_queue = Queue(maxsize=5)
+delete_queue = Queue(maxsize=20)
 refresh_lock = RLock()
 
 
 # ------------------ Functions -----------------------------------#
 def refresh_proxy():
     Thread(target=list_items, daemon=True).start()
+
+
+def delete_proxy(id: int):
+    delete_queue.put(id)
+    Thread(target=delete_file).start()
 
 
 def set_creds(out: dict):
@@ -59,7 +65,8 @@ def main_package():
     files_section.pack(fill="both", side="top", expand=True)
 
 
-def delete_file(id: int):
+def delete_file():
+    id = delete_queue.get()
     connector.delete_file(id)
     list_items()
 
@@ -112,7 +119,7 @@ def list_items():
         container: Frame = Frame(files_section)
         label: Label = Label(container, text=filename)
         download: Button = Button(container, text="Download", command=partial(download_proxy, id, filename))
-        delete: Button = Button(container, text="Delete", command=partial(delete_file, id))
+        delete: Button = Button(container, text="Delete", command=partial(delete_proxy, id))
         label.pack(side="left")
         download.pack(side="right")
         delete.pack(side="right")
