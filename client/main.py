@@ -21,15 +21,17 @@ from tkinter import Tk, filedialog, Button, LabelFrame, Label, Entry, END, LEFT,
 from connector import API
 from cryptography import Crypto
 from functools import partial
-from threading import Thread
+from threading import Thread, RLock
 from pathlib import Path
 from queue import Queue
+from time import sleep
 
 root = Tk()
 connector = API("", "")
 crypto = Crypto()
 download_queue = Queue(maxsize=5)
 upload_queue = Queue(maxsize=5)
+refresh_lock = RLock()
 
 
 # ------------------ Functions -----------------------------------#
@@ -95,6 +97,7 @@ def upload_file():
 
 
 def list_items():
+    refresh_lock.acquire()
     items = connector.get_all_files()
     [child.destroy() for child in files_section.winfo_children()]
     for file in items:
@@ -109,6 +112,8 @@ def list_items():
         download.pack(side="right")
         delete.pack(side="right")
         container.pack(fill="x")
+    sleep(2)
+    refresh_lock.release()
 
 
 def read_config():
