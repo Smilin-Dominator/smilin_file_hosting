@@ -28,8 +28,8 @@ from queue import Queue
 root = Tk()
 connector = API("", "")
 crypto = Crypto()
-download_queue = Queue(maxsize=0)
-upload_queue = Queue(maxsize=0)
+download_queue = Queue(maxsize=5)
+upload_queue = Queue(maxsize=5)
 
 
 # ------------------ Functions -----------------------------------#
@@ -73,12 +73,13 @@ def download_file():
 
 
 def upload_proxy():
-    fname = filedialog.askopenfilename(title="Select A File To Upload!")
-    if fname in "." or "":
-        pass
-    else:
-        upload_queue.put_nowait(fname)
-        Thread(target=upload_file, daemon=True).start()
+    fnames = filedialog.askopenfilenames(title="Select A File To Upload!")
+    for filename in fnames:
+        if "" or "." == filename:
+            continue
+        else:
+            upload_queue.put(filename)
+            Thread(target=upload_file, daemon=True).start()
 
 
 def upload_file():
@@ -164,14 +165,12 @@ files_section = LabelFrame(root, text="Files")
 
 # --------------- Program ----------------------------#
 if __name__ == "__main__":
-    root.geometry("800x500")
+    root.geometry("1000x700")
 
     credentials_section.pack(side=LEFT, fill="y")
     username.pack()
     link.pack()
     save_creds.pack()
-
-    # Thread(target=upload_file, daemon=True).start()
 
     read_config()
 
