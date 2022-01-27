@@ -35,6 +35,10 @@ refresh_lock = RLock()
 
 
 # ------------------ Functions -----------------------------------#
+def refresh_proxy():
+    Thread(target=list_items, daemon=True).start()
+
+
 def set_creds(out: dict):
     connector.set_username(out["username"])
     connector.set_url(out["url"])
@@ -47,6 +51,7 @@ def set_creds(out: dict):
 def main_package():
 
     status_section.pack(side=RIGHT, fill="y")
+    refresh.pack()
     upload.pack()
     uploading.pack(fill="both", expand=True)
     downloading.pack(fill="both", expand=True)
@@ -60,7 +65,7 @@ def delete_file(id: int):
 
 
 def download_proxy(id: int, filename: str):
-    download_queue.put_nowait((id, filename))
+    download_queue.put((id, filename))
     Thread(target=download_file, daemon=True).start()
 
 
@@ -112,7 +117,7 @@ def list_items():
         download.pack(side="right")
         delete.pack(side="right")
         container.pack(fill="x")
-    sleep(2)
+    sleep(0.3499)
     refresh_lock.release()
 
 
@@ -123,7 +128,7 @@ def read_config():
             out = loads(r.read())
         set_creds(out)
         main_package()
-        list_items()
+        refresh_proxy()
     except FileNotFoundError:
         pass
     except KeyError:
@@ -143,7 +148,7 @@ def write_config():
         w.close()
     set_creds(out)
     main_package()
-    list_items()
+    refresh_proxy()
 
 
 # ---------------------- Elements --------------------------------------------#
@@ -153,7 +158,8 @@ status_section = LabelFrame(root, text="Status")
 downloading = LabelFrame(status_section, text="Downloading")
 uploading = LabelFrame(status_section, text="Uploading")
 
-# The Upload Button
+# The Control Buttons
+refresh = Button(status_section, command=refresh_proxy, text="Refresh")
 upload = Button(status_section, command=upload_proxy, text="Upload File")
 
 # The Credentials Section
