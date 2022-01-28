@@ -25,13 +25,17 @@ from cryptography import Crypto
 
 class API:
 
-    def __init__(self, server: str, username: str):
+    def __init__(self, server: str, username: str, email: str):
         self.server = server
         self.username = username
         self.base_url = furl(server)
         self.base_url.path.segments = [username]
         self.crypto = Crypto()
         self.files = Path("files")
+        self.temp = Path("temp")
+
+    def setup_crypto(self, email: str):
+        self.crypto.setup_gpg(email)
 
     def test_connection(self) -> bool:
         try:
@@ -69,9 +73,12 @@ class API:
         file = get(url.tostr(), params={"id": id}, stream=True)
         if file.content != b'False':
             filename = file.headers.get("Content-Disposition")[29:]
-            path_to_file = Path(self.files, self.crypto.decrypt_string(filename))
-            with open(path_to_file, "wb") as d:
+            decrypted_filename = self.crypto.decrypt_string(filename)
+            path_to_temp_file = Path(self.temp, "".join([decrypted_filename, ".gpg"]))
+            path_to_file = Path(self.files, decrypted_filename)
+            with open(path_to_temp_file, "wb") as d:
                 d.write(file.content)
+            self.crypto.decrypt_file(str(path_to_temp_file), str(path_to_file))
         else:
             print("No Such File!")
 
@@ -88,6 +95,8 @@ class API:
         url = deepcopy(self.base_url)
         url.path.segments.append("upload")
         path_to_file = Path(filename)
+        enc_path = self.crypto.encrypt_file(path_to_file)
         real_filename = path_to_file.name
         enc_filename = self.crypto.encrypt_string(real_filename)
-        post(url.tostr(), params={"encrypted_filename": enc_filename}, files={"file": open(path_to_file, "rb")})
+        post(url.tostr(), params={"encrypted_filename": enc_filename}, files={"file": open(enc_path, "rb")})
+        enc_path.unlink()

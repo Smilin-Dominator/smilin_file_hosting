@@ -19,7 +19,6 @@
 from json import loads, dumps
 from tkinter import Tk, filedialog, Button, LabelFrame, Label, Entry, END, LEFT, RIGHT, Frame
 from connector import API
-from cryptography import Crypto
 from functools import partial
 from threading import Thread, RLock
 from pathlib import Path
@@ -27,8 +26,7 @@ from queue import Queue
 from time import sleep
 
 root = Tk()
-connector = API("", "")
-crypto = Crypto()
+connector = API("", "", "")
 download_queue = Queue(maxsize=5)
 upload_queue = Queue(maxsize=5)
 delete_queue = Queue(maxsize=20)
@@ -75,7 +73,7 @@ def set_creds(out: dict):
     username.insert(0, out["username"])
     email.delete(0, END)
     email.insert(0, out["email"])
-    crypto.setup_gpg(out["email"])
+    connector.setup_crypto(out["email"])
 
 
 def main_package():

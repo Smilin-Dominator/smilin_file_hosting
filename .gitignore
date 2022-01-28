@@ -56,3 +56,4 @@ server/files
 # Client Data
 client/credentials/
 client/files/
+client/temp/

@@ -1,3 +1,4 @@
 requests
 furl
 rsa
+python-gnupg

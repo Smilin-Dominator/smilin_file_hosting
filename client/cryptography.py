@@ -16,10 +16,12 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+from time import time_ns
 from pathlib import Path
-
 from rsa import newkeys, PrivateKey, PublicKey, encrypt, decrypt
 from binascii import hexlify, unhexlify
+from gnupg import GPG
+from shutil import which
 
 
 class Crypto:
@@ -27,37 +29,30 @@ class Crypto:
     def __init__(self) -> None:
         self.pub = None
         self.priv = None
-        self.get_keys()
+        self.email = None
+        self.gpg = GPG
+        self.files = Path("files")
+        self.temp = Path("temp")
 
-    def get_keys(self) -> None:
-        pubExists = Path("credentials/public.pem").exists()
-        priExists = Path("credentials/private.pem").exists()
-        if not (pubExists or priExists):
-            self.create_new_keys()
-        else:
-            self.load_existing_keys()
-
-    def create_new_keys(self) -> None:
-        pub, priv = newkeys(4096)
-        Path("credentials").mkdir()
-        with open("./credentials/public.pem", "w+") as w:
-            key_string = pub.save_pkcs1()
-            w.write(key_string.decode('utf-8'))
-        with open("./credentials/private.pem", "w+") as w:
-            key_string = priv.save_pkcs1()
-            w.write(key_string.decode('utf-8'))
-        self.priv = priv
-        self.pub = pub
-
-    def load_existing_keys(self) -> None:
-        with open("./credentials/private.pem", "rb") as r:
-            self.priv = PrivateKey.load_pkcs1(r.read())
-        with open("./credentials/public.pem", "rb") as r:
-            self.pub = PublicKey.load_pkcs1(r.read())
+    def setup_gpg(self, email: str) -> None:
+        self.gpg = GPG(gpgbinary=which("gpg"), gnupghome=str(Path(Path.home(), "AppData", "Roaming", "gnupg")))
+        self.email = email
 
     def decrypt_string(self, string: bytes) -> str:
-        text = decrypt(unhexlify(string), self.priv)
-        return text.decode('utf-8')
+        return self.gpg.decrypt(string)
 
     def encrypt_string(self, string: str) -> bytes:
-        return hexlify(encrypt(string.encode('utf-8'), self.pub))
+        return self.gpg.encrypt(string, recipients=[self.email])
+
+    def encrypt_file(self, path: Path) -> Path:
+        self.temp.mkdir() if not self.temp.exists() else None
+        with open(path, "rb") as r:
+            out = Path(self.temp, f"{path.name}_{str(time_ns())}")
+            self.gpg.encrypt_file(file=r, recipients=[self.email], output=out)
+        return out
+
+    def decrypt_file(self, path: str, new_file: str) -> None:
+        self.temp.mkdir() if not self.temp.exists() else None
+        with open(path, "rb") as r:
+            dec = self.gpg.decrypt_file(file=r, output=new_file, always_trust=True)
+        Path(path).unlink()
