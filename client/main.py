@@ -143,8 +143,9 @@ def read_config():
         with open("credentials/config.json", "r") as r:
             out = loads(r.read())
         set_creds(out)
-        main_package()
-        refresh_proxy()
+        if connector.test_connection():
+            main_package()
+            refresh_proxy()
     except FileNotFoundError:
         pass
     except KeyError:
@@ -163,8 +164,9 @@ def write_config():
         w.flush()
         w.close()
     set_creds(out)
-    main_package()
-    refresh_proxy()
+    if connector.test_connection():
+        main_package()
+        refresh_proxy()
 
 
 # ---------------------- Elements --------------------------------------------#

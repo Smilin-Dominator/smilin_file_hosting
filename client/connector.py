@@ -19,7 +19,7 @@
 from copy import deepcopy
 from pathlib import Path
 from furl import furl
-from requests import get, post, delete
+from requests import get, post, delete, ConnectionError
 from cryptography import Crypto
 
 
@@ -32,6 +32,19 @@ class API:
         self.base_url.path.segments = [username]
         self.crypto = Crypto()
         self.files = Path("files")
+
+    def test_connection(self) -> bool:
+        try:
+            req = get(self.base_url.tostr())
+            if req.status_code == 404:
+                print(f"[*] Connection Failed To URL: '{self.base_url.tostr()}'")
+                return False
+            else:
+                print(f"[*] Connection Succeeded to URL: '{self.base_url.tostr()}'")
+                return True
+        except ConnectionError:
+            print(f"[*] Connection Failed To URL: '{self.base_url.tostr()}'")
+            return False
 
     def set_username(self, user: str):
         self.username = user
