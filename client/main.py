@@ -124,9 +124,8 @@ def list_items():
     items = connector.get_all_files()
     [child.destroy() for child in files_section.winfo_children()]
     for file in items:
-        encrypted_filename: bytes = file["filename"]
         id: int = file["id"]
-        filename: str = crypto.decrypt_string(encrypted_filename)
+        filename: str = file["filename"]
         container: Frame = Frame(files_section)
         label: Label = Label(container, text=filename)
         download: Button = Button(container, text="Download", command=partial(download_proxy, id, filename))

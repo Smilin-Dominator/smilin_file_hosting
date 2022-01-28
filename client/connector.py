@@ -56,7 +56,10 @@ class API:
     def get_all_files(self) -> list[dict]:
         url = deepcopy(self.base_url)
         url.path.segments.append("list")
-        return get(url.tostr()).json()
+        the_files = get(url.tostr()).json()
+        for file in the_files:
+            file["filename"] = self.crypto.decrypt_string(file["filename"])
+        return the_files
 
     def download_file(self, id: int):
         url = deepcopy(self.base_url)
