@@ -3,6 +3,7 @@ services:
   postgres:
     image: postgres:latest
     container_name: Postgres
+    restart: unless-stopped
     networks:
       - main
     environment:
@@ -16,6 +17,7 @@ services:
   api:
     image: python:3.10-buster
     container_name: API
+    restart: unless-stopped
     working_dir: /app
     command:
       - ./run.sh
