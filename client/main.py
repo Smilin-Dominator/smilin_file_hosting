@@ -73,6 +73,9 @@ def set_creds(out: dict):
     link.insert(0, out["url"])
     username.delete(0, END)
     username.insert(0, out["username"])
+    email.delete(0, END)
+    email.insert(0, out["email"])
+    crypto.setup_gpg(out["email"])
 
 
 def main_package():
@@ -155,9 +158,11 @@ def read_config():
 def write_config():
     user = username.get()
     url = link.get()
+    em = email.get()
     out = {
         "username": user,
-        "url": url
+        "url": url,
+        "email": em
     }
     with open("credentials/config.json", "w") as w:
         w.write(dumps(out, indent=4))
@@ -186,6 +191,8 @@ username = Entry(credentials_section)
 username.insert(0, "Username")
 link = Entry(credentials_section)
 link.insert(0, "Link")
+email = Entry(credentials_section)
+email.insert(0, "Email")
 save_creds = Button(credentials_section, text="Connect", command=write_config)
 
 # The Files Section
@@ -199,6 +206,7 @@ if __name__ == "__main__":
     credentials_section.pack(side=LEFT, fill="y")
     username.pack()
     link.pack()
+    email.pack()
     save_creds.pack()
 
     read_config()
