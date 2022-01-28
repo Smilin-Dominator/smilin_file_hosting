@@ -48,7 +48,7 @@ def upload_proxy():
 def refresh_proxy():
     full: bool = refresh_queue.full()
     if not full:
-        refresh_queue.put(0)
+        refresh_queue.put_nowait(0)
         Thread(target=list_items, daemon=True).start()
 
 
