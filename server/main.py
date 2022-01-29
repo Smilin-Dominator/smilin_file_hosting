@@ -35,6 +35,12 @@ database = Db(DATABASE_URL)
 engine = create_engine(DATABASE_URL)
 
 
+def get_table(username: str):
+    table = deepcopy(RefTable)
+    table.name = username.lower().replace(" ", "")
+    return table
+
+
 @app.on_event("startup")
 async def startup():
     await database.connect()
@@ -47,8 +53,7 @@ async def shutdown():
 
 @app.get("/{username}")
 async def confirm_user(username: str):
-    table = deepcopy(RefTable)
-    table.name = username.lower().replace(" ", "")
+    table = get_table(username)
     if not table.exists:
         await database.execute(f"""
             CREATE TABLE {username} (
@@ -62,15 +67,13 @@ async def confirm_user(username: str):
 
 @app.get("/{username}/list/", response_model=list[FileEntry])
 async def get_all(username: str):
-    table = deepcopy(RefTable)
-    table.name = username.lower().replace(" ", "")
+    table = get_table(username)
     return await database.fetch_all(table.select())
 
 
 @app.get("/{username}/download/")
 async def get_file(username: str, id: int):
-    table = deepcopy(RefTable)
-    table.name = username.lower().replace(" ", "")
+    table = get_table(username)
     homedir = Path.joinpath(files_path, username)
     if not homedir.exists():
         homedir.mkdir()
@@ -85,8 +88,7 @@ async def get_file(username: str, id: int):
 
 @app.post("/{username}/upload/")
 async def upload_file(username: str, encrypted_filename: bytes, file: UploadFile = File(...)):
-    table = deepcopy(RefTable)
-    table.name = username.lower().replace(" ", "")
+    table = get_table(username)
     homedir = Path.joinpath(files_path, username)
     if not homedir.exists():
         homedir.mkdir()
@@ -105,8 +107,7 @@ async def upload_file(username: str, encrypted_filename: bytes, file: UploadFile
 
 @app.delete("/{username}/delete")
 async def delete_file(username: str, id: int):
-    table = deepcopy(RefTable)
-    table.name = username.lower().replace(" ", "")
+    table = get_table(username)
     homedir = Path.joinpath(files_path, username)
     if not homedir.exists():
         homedir.mkdir()
