@@ -9,6 +9,9 @@ theme:
     - toc.integrate
     - content.tabs.link
 markdown_extensions:
+  - toc:
+      permalink: "#"
+  - tables
   - footnotes
   - def_list
   - pymdownx.tasklist:
