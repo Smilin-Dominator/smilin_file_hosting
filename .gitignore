@@ -57,3 +57,6 @@ server/files
 client/credentials/
 client/files/
 client/temp/
+
+# Documentation
+!mkdocs.yml

@@ -1,0 +1,24 @@
+site_name: Smilin' File Hosting
+repo_url: https://github.com/Smilin-Dominator/smilin_file_hosting
+repo_name: smilin_file_hosting
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - toc.integrate
+    - content.tabs.link
+markdown_extensions:
+  - footnotes
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.superfences
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
