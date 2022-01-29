@@ -32,7 +32,7 @@ files_path = Path("/files/")
 app = FastAPI()
 
 database = Db(DATABASE_URL)
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(DATABASE_URL)
 
 
 @app.on_event("startup")
@@ -46,17 +46,24 @@ async def shutdown():
 
 
 @app.get("/{username}")
-async def confirm_user():
-    return True
+async def confirm_user(username: str):
+    table = deepcopy(RefTable)
+    table.name = username.lower().replace(" ", "")
+    if not table.exists:
+        await database.execute(f"""
+            CREATE TABLE {username} (
+                id SERIAL PRIMARY KEY,
+                filename BYTEA,
+                hash TEXT,
+                time TIMESTAMP
+            )
+        """)
 
 
 @app.get("/{username}/list/", response_model=list[FileEntry])
 async def get_all(username: str):
     table = deepcopy(RefTable)
     table.name = username.lower().replace(" ", "")
-    if not table.exists:
-        table.create()
-        return False
     return await database.fetch_all(table.select())
 
 
