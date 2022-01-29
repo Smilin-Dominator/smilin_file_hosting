@@ -19,7 +19,6 @@
 from databases import Database as Db
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import FileResponse
-from sqlalchemy import create_engine
 from formats import FileEntry, RefTable
 from pathlib import Path
 from shutil import copyfileobj
@@ -30,9 +29,7 @@ from datetime import datetime
 DATABASE_URL = "postgresql://test:123@Postgres/app"
 files_path = Path("/files/")
 app = FastAPI()
-
 database = Db(DATABASE_URL)
-engine = create_engine(DATABASE_URL)
 
 
 def get_table(username: str):
@@ -56,19 +53,19 @@ async def confirm_user(username: str):
     table = get_table(username)
     if not table.exists:
         await database.execute(f"""
-            CREATE TABLE {username} (
+            CREATE TABLE {table.name} (
                 id SERIAL PRIMARY KEY,
                 filename BYTEA,
                 hash TEXT,
                 time TIMESTAMP
-            )
+            );
         """)
 
 
 @app.get("/{username}/list/", response_model=list[FileEntry])
 async def get_all(username: str):
     table = get_table(username)
-    return await database.fetch_all(table.select())
+    return await database.fetch_all(f"SELECT * FROM {table.name};")
 
 
 @app.get("/{username}/download/")
@@ -78,7 +75,7 @@ async def get_file(username: str, id: int):
     if not homedir.exists():
         homedir.mkdir()
         return False
-    db_result = await database.fetch_one(table.select(table.c.id == id))
+    db_result = await database.fetch_one(f"SELECT * FROM {table.name} WHERE id = {id}")
     if not db_result:
         return False
     else:
@@ -98,8 +95,13 @@ async def upload_file(username: str, encrypted_filename: bytes, file: UploadFile
     path_to_file = Path.joinpath(homedir, hashed)
     with open(path_to_file, "wb") as w:
         copyfileobj(file.file, w)
-    query = table.insert().values(filename=encrypted_filename, hash=hashed, time=time_of_uploading)
-    its_id = await database.execute(query)
+    query = f"INSERT INTO {table.name} (filename, hash, time) VALUES (:filename, :hash, :time);"
+    values = {
+        "filename": encrypted_filename,
+        "hash": hashed,
+        "time": time_of_uploading
+    }
+    its_id = await database.execute(query=query, values=values)
     return {
         "inserted_id": its_id
     }
@@ -112,12 +114,12 @@ async def delete_file(username: str, id: int):
     if not homedir.exists():
         homedir.mkdir()
         return False
-    file = await database.fetch_one(table.select(table.c.id == id))
+    file = await database.fetch_one(f"SELECT hash FROM {table.name} WHERE id = {id};")
     if not file:
         return False
     else:
         path_to_file = Path.joinpath(homedir, file['hash'])
         path_to_file.unlink()
-        await database.execute(table.delete(table.c.id == id))
+        await database.execute(f"DELETE FROM {table.name} WHERE id = {id};")
         return True
 
