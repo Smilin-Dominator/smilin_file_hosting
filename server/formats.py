@@ -20,6 +20,9 @@ from pydantic import BaseModel
 from sqlalchemy import Table, MetaData, Column, Integer, BINARY, Text, TIMESTAMP
 
 
+md = MetaData()
+
+
 class FileEntry(BaseModel):
     id: int
     filename: bytes
@@ -32,7 +35,7 @@ class FileInput(BaseModel):
 
 RefTable = Table(
     "reference",
-    MetaData(),
+    md,
     Column("id", Integer, primary_key=True),
     Column("filename", BINARY),
     Column("hash", Text),

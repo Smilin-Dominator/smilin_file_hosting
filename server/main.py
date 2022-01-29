@@ -25,11 +25,13 @@ from shutil import copyfileobj
 from hashlib import sha256
 from copy import deepcopy
 from datetime import datetime
+from sqlalchemy import create_engine
 
 DATABASE_URL = "postgresql://test:123@Postgres/app"
 files_path = Path("/files/")
 app = FastAPI()
 database = Db(DATABASE_URL)
+engine = create_engine(DATABASE_URL)
 
 
 def get_table(username: str):
@@ -51,7 +53,8 @@ async def shutdown():
 @app.get("/{username}")
 async def confirm_user(username: str):
     table = get_table(username)
-    if not table.exists:
+    if not engine.dialect.has_table(connection=engine.connect(), table_name=table.name):
+        print("Table '{}' Does Not Exist!".format(table.name))
         await database.execute(f"""
             CREATE TABLE {table.name} (
                 id SERIAL PRIMARY KEY,
@@ -60,6 +63,10 @@ async def confirm_user(username: str):
                 time TIMESTAMP
             );
         """)
+        print("Created Table '{}' For User '{}'!".format(table.name, username))
+        return True
+    else:
+        return True
 
 
 @app.get("/{username}/list/", response_model=list[FileEntry])
