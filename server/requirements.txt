@@ -1,8 +1,10 @@
 fastapi~=0.73.0
 SQLAlchemy~=1.4.31
 pydantic~=1.9.0
-databases~=0.5.5
+databases[mysql]
 uvicorn
 asyncpg
 psycopg2
 python-multipart
+mysqlclient
+cryptography

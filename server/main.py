@@ -27,7 +27,7 @@ from copy import deepcopy
 from datetime import datetime
 from sqlalchemy import create_engine
 
-DATABASE_URL = "postgresql://test:123@Postgres/app"
+DATABASE_URL = "mysql+pymysql://test:123@MySQL/app"
 files_path = Path("/files/")
 app = FastAPI()
 database = Db(DATABASE_URL)
@@ -57,9 +57,9 @@ async def confirm_user(username: str):
         print("Table '{}' Does Not Exist!".format(table.name))
         await database.execute(f"""
             CREATE TABLE {table.name} (
-                id SERIAL PRIMARY KEY,
-                filename BYTEA,
-                hash TEXT,
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                filename BLOB,
+                hash VARCHAR(64),
                 time TIMESTAMP
             );
         """)

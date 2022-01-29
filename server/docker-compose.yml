@@ -1,19 +1,21 @@
 version: "3.9"
 services:
-  postgres:
-    image: postgres:latest
-    container_name: Postgres
+  mysql:
+    image: mysql:latest
+    container_name: MySQL
     restart: unless-stopped
+    command: --authentication_policy=mysql_native_password
     networks:
       - main
     environment:
-      POSTGRES_DB: app
-      POSTGRES_USER: test
-      POSTGRES_PASSWORD: 123
+      MYSQL_DATABASE: app
+      MYSQL_USER: test
+      MYSQL_PASSWORD: 123
+      MYSQL_ROOT_PASSWORD: override
     ports:
-      - "5432:5432"
+      - "3306:3306"
     volumes:
-      - "./db:/var/lib/postgresql/data"
+      - "./db:/var/lib/mysql"
   api:
     image: python:3.10-buster
     container_name: API
