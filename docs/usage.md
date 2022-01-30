@@ -21,7 +21,7 @@ This guide assumes that you've performed all the actions mentioned in the instal
 
 ### First Time Setup
 As soon as you run the client for the first time, you should see a screen with a section on the left, and the rest of the
-area blank. (See Credentials for the Fields)
+area blank. (See [Credentials](#credentials) for the Fields)
 
 ???+ Note
 
