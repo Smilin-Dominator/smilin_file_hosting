@@ -82,7 +82,7 @@ async def get_file(username: str, id: int):
     if not homedir.exists():
         homedir.mkdir()
         return False
-    db_result = await database.fetch_one(f"SELECT * FROM {table.name} WHERE id = {id}")
+    db_result = await database.fetch_one(f"SELECT hash, filename FROM {table.name} WHERE id = {id}")
     if not db_result:
         return False
     else:
