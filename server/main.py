@@ -38,7 +38,7 @@ engine = create_engine(DATABASE_URL)
 
 def get_table(username: str):
     table = deepcopy(RefTable)
-    table.name = username.lower().replace(" ", "")
+    table.name = username.replace("-", "")
     return table
 
 
@@ -62,10 +62,19 @@ async def shutdown():
 @app.post("/register", response_model=UUID)
 async def create_user():
     while True:
-        uuid = uuid4()
-        check = await database.fetch_one("SELECT uuid FROM users WHERE uuid = :id", {"id": str(uuid)})
+        uuid = str(uuid4())
+        check = await database.fetch_one("SELECT uuid FROM users WHERE uuid = :id", {"id": uuid})
         if check is None:
-            await database.execute("INSERT INTO users VALUES (:id, :time)", {"id": str(uuid), "time": datetime.now()})
+            await database.execute("INSERT INTO users VALUES (:id, :time)", {"id": uuid, "time": datetime.now()})
+            await database.execute(f"""
+                CREATE TABLE `{uuid.replace("-", "")}` (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    filename BLOB,
+                    hash VARCHAR(64),
+                    time TIMESTAMP
+                );
+            """)
+            print("Created Table For User '{}'!".format(uuid))
             return uuid
         else:
             continue
@@ -76,16 +85,7 @@ async def confirm_user(username: str):
     table = get_table(username)
     if not engine.dialect.has_table(connection=engine.connect(), table_name=table.name):
         print("Table '{}' Does Not Exist!".format(table.name))
-        await database.execute(f"""
-            CREATE TABLE {table.name} (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                filename BLOB,
-                hash VARCHAR(64),
-                time TIMESTAMP
-            );
-        """)
-        print("Created Table '{}' For User '{}'!".format(table.name, username))
-        return True
+        return False
     else:
         return True
 
