@@ -40,7 +40,7 @@ class API:
     def test_connection(self) -> bool:
         try:
             req = get(self.base_url.tostr())
-            if req.status_code == 404:
+            if (req.status_code == 404) or (req.content == b"false"):
                 print(f"[*] Connection Failed To URL: '{self.base_url.tostr()}'")
                 return False
             else:
@@ -71,7 +71,7 @@ class API:
         if not self.files.exists():
             self.files.mkdir()
         file = get(url.tostr(), params={"id": id}, stream=True)
-        if file.content != b'False':
+        if file.content != b'false':
             filename = file.headers.get("Content-Disposition")[29:]
             decrypted_filename = self.crypto.decrypt_string(filename)
             path_to_temp_file = Path(self.temp, "".join([decrypted_filename, ".gpg"]))
