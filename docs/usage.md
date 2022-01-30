@@ -8,9 +8,9 @@ API might take about a minute or two, depending on your;
 * Network Speed (as it needs to install the requirements) 
 * Clock Speed (to start the API inside a Container).
 
-Afterwards, you can test the API by issuing the command `curl -X GET http://(server):2356/(username)/`, replacing
-`server` with the server's domain/ip and `username` with a username. It should return `true`, regardless of it
-being a new username or an old one.
+Afterwards, you can test the API by issuing the command `curl -X GET http://(server):2356/(token)/`, replacing
+`server` with the server's domain/ip and `token` with a random string. It should return `false`, as there's no
+UUID registered (but if you used a registered token, it'll return True)
 
 All the Server Interaction is done through the client, so there's no need to use `curl` or `wget` to
 send requests to the server again.
@@ -21,19 +21,14 @@ This guide assumes that you've performed all the actions mentioned in the instal
 
 ### First Time Setup
 As soon as you run the client for the first time, you should see a screen with a section on the left, and the rest of the
-area blank. (See [Credentials](#credentials) for the Fields)
+area blank. (See [Credentials](#credentials))
 
-???+ Note
+First, enter data into the `link` and `email` fields respectively. Afterwards, hit 'register'. If the URL was valid,
+it'll override the username field with your Token (Write this down or save it somewhere, as this is the only way
+to access your data), but if the URL wasn't valid, there'll be no change.
 
-    The name of your table in the Database is the username you input;
-    
-    * Lowercased
-    * Stripped Of Spaces
-
-    So, if the input was "De v Is H a" or "Devis HA" or vice versa the table name will always be "devisha".
-
-Afterwards, press connect. If the connection succeeds, you'll see the rest of the elements of the program appear, if not, check if the link and
-username are correct.
+Afterwards, press connect. If the connection succeeds, you'll see the rest of the elements of the program appear, if not,
+check if the link and username are correct.
 
 Note that your credentials are saved in a file called `config.json` in the credentials directory of client. Each time you
 open the program after the first time, your credentials will autoload for you. If you put different credentials and
@@ -50,6 +45,11 @@ This section displays 3 Entry Fields and One Button;
 * `Link (Entry)`  **->** URL to the server hosting the service, with the Port (:2356) at the End.
 * `Email (Entry)` **->** The email that's attached to your GPG Key (The one you set in the installation page)
 * `Connect (Button)` **->** This will save the credentials to the configuration file and connect to the server.
+* `Register (Button)` **->** If you've entered a link, this will connect to the link and generate+register a Token/Username for you.
+
+???+ "The Importance Of Tokens"
+    Remember! If you lose your token, you lose your files.
+
 
 #### Files
 

@@ -26,8 +26,10 @@ from hashlib import sha256
 from copy import deepcopy
 from datetime import datetime
 from sqlalchemy import create_engine
+from uuid import uuid4, UUID
 
-DATABASE_URL = "mysql+pymysql://test:123@MySQL/app"
+
+DATABASE_URL = "mysql+pymysql://test:123@MariaDB/app"
 files_path = Path("/files/")
 app = FastAPI()
 database = Db(DATABASE_URL)
@@ -36,13 +38,20 @@ engine = create_engine(DATABASE_URL)
 
 def get_table(username: str):
     table = deepcopy(RefTable)
-    table.name = username.lower().replace(" ", "")
+    table.name = username.replace("-", "")
     return table
 
 
 @app.on_event("startup")
 async def startup():
     await database.connect()
+    if not engine.dialect.has_table(connection=engine.connect(), table_name="users"):
+        await database.execute("""
+            CREATE TABLE users ( 
+                uuid VARCHAR(64) PRIMARY KEY,
+                time TIMESTAMP
+            );
+        """)
 
 
 @app.on_event("shutdown")
@@ -50,21 +59,33 @@ async def shutdown():
     await database.disconnect()
 
 
+@app.post("/register", response_model=UUID)
+async def create_user():
+    while True:
+        uuid = str(uuid4())
+        check = await database.fetch_one("SELECT uuid FROM users WHERE uuid = :id", {"id": uuid})
+        if check is None:
+            await database.execute("INSERT INTO users VALUES (:id, :time)", {"id": uuid, "time": datetime.now()})
+            await database.execute(f"""
+                CREATE TABLE `{uuid.replace("-", "")}` (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    filename BLOB,
+                    hash VARCHAR(64),
+                    time TIMESTAMP
+                );
+            """)
+            print("Created Table For User '{}'!".format(uuid))
+            return uuid
+        else:
+            continue
+
+
 @app.get("/{username}")
 async def confirm_user(username: str):
     table = get_table(username)
     if not engine.dialect.has_table(connection=engine.connect(), table_name=table.name):
         print("Table '{}' Does Not Exist!".format(table.name))
-        await database.execute(f"""
-            CREATE TABLE {table.name} (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                filename BLOB,
-                hash VARCHAR(64),
-                time TIMESTAMP
-            );
-        """)
-        print("Created Table '{}' For User '{}'!".format(table.name, username))
-        return True
+        return False
     else:
         return True
 
@@ -82,7 +103,7 @@ async def get_file(username: str, id: int):
     if not homedir.exists():
         homedir.mkdir()
         return False
-    db_result = await database.fetch_one(f"SELECT * FROM {table.name} WHERE id = {id}")
+    db_result = await database.fetch_one(f"SELECT hash, filename FROM {table.name} WHERE id = {id}")
     if not db_result:
         return False
     else:

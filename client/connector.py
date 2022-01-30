@@ -40,7 +40,7 @@ class API:
     def test_connection(self) -> bool:
         try:
             req = get(self.base_url.tostr())
-            if req.status_code == 404:
+            if (req.status_code == 404) or (req.content == b"false"):
                 print(f"[*] Connection Failed To URL: '{self.base_url.tostr()}'")
                 return False
             else:
@@ -65,13 +65,21 @@ class API:
             file["filename"] = self.crypto.decrypt_string(file["filename"])
         return the_files
 
+    def register(self, link: str) -> str:
+        url = furl(link)
+        url.path.segments.append("register")
+        req: str = post(url.tostr()).json()
+        self.set_username(req)
+        self.set_url(link)
+        return req
+
     def download_file(self, id: int):
         url = deepcopy(self.base_url)
         url.path.segments.append("download")
         if not self.files.exists():
             self.files.mkdir()
         file = get(url.tostr(), params={"id": id}, stream=True)
-        if file.content != b'False':
+        if file.content != b'false':
             filename = file.headers.get("Content-Disposition")[29:]
             decrypted_filename = self.crypto.decrypt_string(filename)
             path_to_temp_file = Path(self.temp, "".join([decrypted_filename, ".gpg"]))

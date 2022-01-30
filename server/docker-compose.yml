@@ -1,17 +1,16 @@
 version: "3.9"
 services:
-  mysql:
-    image: mysql:latest
-    container_name: MySQL
+  mariadb:
+    image: mariadb:latest
+    container_name: MariaDB
     restart: unless-stopped
-    command: --authentication_policy=mysql_native_password
     networks:
       - main
     environment:
-      MYSQL_DATABASE: app
-      MYSQL_USER: test
-      MYSQL_PASSWORD: 123
-      MYSQL_ROOT_PASSWORD: override
+      MARIADB_DATABASE: app
+      MARIADB_USER: test
+      MARIADB_PASSWORD: 123
+      MARIADB_ROOT_PASSWORD: override
     ports:
       - "3306:3306"
     volumes:
