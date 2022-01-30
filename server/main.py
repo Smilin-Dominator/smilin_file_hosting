@@ -26,6 +26,8 @@ from hashlib import sha256
 from copy import deepcopy
 from datetime import datetime
 from sqlalchemy import create_engine
+from uuid import uuid4, UUID
+
 
 DATABASE_URL = "mysql+pymysql://test:123@MariaDB/app"
 files_path = Path("/files/")
@@ -45,13 +47,28 @@ async def startup():
     await database.connect()
     if not engine.dialect.has_table(connection=engine.connect(), table_name="users"):
         await database.execute("""
-            CREATE TABLE users ( uuid VARCHAR(64) PRIMARY KEY );
+            CREATE TABLE users ( 
+                uuid VARCHAR(64) PRIMARY KEY,
+                time TIMESTAMP
+            );
         """)
 
 
 @app.on_event("shutdown")
 async def shutdown():
     await database.disconnect()
+
+
+@app.post("/register", response_model=UUID)
+async def create_user():
+    while True:
+        uuid = uuid4()
+        check = await database.fetch_one("SELECT uuid FROM users WHERE uuid = :id", {"id": str(uuid)})
+        if check is None:
+            await database.execute("INSERT INTO users VALUES (:id, :time)", {"id": str(uuid), "time": datetime.now()})
+            return uuid
+        else:
+            continue
 
 
 @app.get("/{username}")
