@@ -345,10 +345,10 @@ my cousins, and it's turned into something a lot more cool.</p>
 <p>This creates two containers;</p>
 <ul>
 <li>A Python Container (The Main API)</li>
-<li>A MySQL Container (The Main Database)</li>
+<li>A MariaDB Container (The Main Database)</li>
 </ul>
 <p>The Python Container contains the main server, which exposes Port 2356, and the
-MySQL Container contains a MySQL Database with the user and password specified in the docker-compose file.</p>
+MariaDB Container contains a MariaDB Database with the user and password specified in the docker-compose file.</p>
 <h3 id="client">Client<a class="headerlink" href="#client" title="Permanent link">#</a></h3>
 <p>To run the client, you'll need a python interpreter. The program was written using Python 3.10, so install either 3.10
 or any version above 3.10. You may download it from <a href="https://www.python.org/downloads/">here</a>.</p>
@@ -367,9 +367,12 @@ or any version above 3.10. You may download it from <a href="https://www.python.
 </div>
 </div>
 </div>
+<p>Or, if you're using Anaconda / Miniconda;</p>
+<p><code>conda env create --file requirements.txt --name smilin_file_client python=3.10</code></p>
+<p><code>conda activate smilin_file_client</code></p>
 <p>This installs all the packages required by the Client to the virtual environment.</p>
 <p>After installing the requirements, you need to install GPG (GNU Privacy Guard), which is essential for the 
-encryption part. You may download it from <a href="https://gnupg.org/download/index.html">here</a>. After installing, GPG, you
+encryption part. You may download it from <a href="https://gnupg.org/download/index.html">here</a>. After installing GPG, you
 need to generate a Key Pair. As this is a process that's not that straightforward, here's a <a href="https://www.redhat.com/sysadmin/creating-gpg-keypairs">guide</a>
 to follow. But here are my preferences and options essential for the program to function properly;</p>
 <ul>
@@ -393,7 +396,8 @@ to follow. But here are my preferences and options essential for the program to 
 <ol>
 <li id="fn:1">
 <p>Instead of using the system-wide or local interpreter, it's safer and more efficient to use a virtual
-    environment.<br>Note that you don't have to use python's "venv", you can even use an Anaconda Environment.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+    environment.<br>Note that you don't have to use python's "venv", you can even use an Anaconda Environment, as
+    specified right under.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
 </li>
 </ol>
 </div>

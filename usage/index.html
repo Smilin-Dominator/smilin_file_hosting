@@ -361,27 +361,21 @@ API might take about a minute or two, depending on your;</p>
 <li>Network Speed (as it needs to install the requirements) </li>
 <li>Clock Speed (to start the API inside a Container).</li>
 </ul>
-<p>Afterwards, you can test the API by issuing the command <code>curl -X GET http://(server):2356/(username)/</code>, replacing
-<code>server</code> with the server's domain/ip and <code>username</code> with a username. It should return <code>true</code>, regardless of it
-being a new username or an old one.</p>
+<p>Afterwards, you can test the API by issuing the command <code>curl -X GET http://(server):2356/(token)/</code>, replacing
+<code>server</code> with the server's domain/ip and <code>token</code> with a random string. It should return <code>false</code>, as there's no
+UUID registered (but if you used a registered token, it'll return True)</p>
 <p>All the Server Interaction is done through the client, so there's no need to use <code>curl</code> or <code>wget</code> to
 send requests to the server again.</p>
 <h2 id="client">Client<a class="headerlink" href="#client" title="Permanent link">#</a></h2>
 <p>This guide assumes that you've performed all the actions mentioned in the installation page.</p>
 <h3 id="first-time-setup">First Time Setup<a class="headerlink" href="#first-time-setup" title="Permanent link">#</a></h3>
 <p>As soon as you run the client for the first time, you should see a screen with a section on the left, and the rest of the
-area blank. (See <a href="#credentials">Credentials</a> for the Fields)</p>
-<details class="note" open="open">
-<summary>Note</summary>
-<p>The name of your table in the Database is the username you input;</p>
-<ul>
-<li>Lowercased</li>
-<li>Stripped Of Spaces</li>
-</ul>
-<p>So, if the input was "De v Is H a" or "Devis HA" or vice versa the table name will always be "devisha".</p>
-</details>
-<p>Afterwards, press connect. If the connection succeeds, you'll see the rest of the elements of the program appear, if not, check if the link and
-username are correct.</p>
+area blank. (See <a href="#credentials">Credentials</a>)</p>
+<p>First, enter data into the <code>link</code> and <code>email</code> fields respectively. Afterwards, hit 'register'. If the URL was valid,
+it'll override the username field with your Token (Write this down or save it somewhere, as this is the only way
+to access your data), but if the URL wasn't valid, there'll be no change.</p>
+<p>Afterwards, press connect. If the connection succeeds, you'll see the rest of the elements of the program appear, if not,
+check if the link and username are correct.</p>
 <p>Note that your credentials are saved in a file called <code>config.json</code> in the credentials directory of client. Each time you
 open the program after the first time, your credentials will autoload for you. If you put different credentials and
 press 'connect', it'll override the previous credentials and autoload those next time.</p>
@@ -393,7 +387,12 @@ press 'connect', it'll override the previous credentials and autoload those next
 <li><code>Link (Entry)</code>  <strong>-&gt;</strong> URL to the server hosting the service, with the Port (:2356) at the End.</li>
 <li><code>Email (Entry)</code> <strong>-&gt;</strong> The email that's attached to your GPG Key (The one you set in the installation page)</li>
 <li><code>Connect (Button)</code> <strong>-&gt;</strong> This will save the credentials to the configuration file and connect to the server.</li>
+<li><code>Register (Button)</code> <strong>-&gt;</strong> If you've entered a link, this will connect to the link and generate+register a Token/Username for you.</li>
 </ul>
+<details open="open">
+<summary>The Importance Of Tokens</summary>
+<p>Remember! If you lose your token, you lose your files.</p>
+</details>
 <h4 id="files">Files<a class="headerlink" href="#files" title="Permanent link">#</a></h4>
 <p>This section displays a list of decrypted filenames along with buttons to download and delete them.</p>
 <ul>
