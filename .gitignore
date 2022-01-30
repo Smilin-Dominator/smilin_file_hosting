@@ -60,3 +60,4 @@ client/temp/
 
 # Documentation
 !mkdocs.yml
+site/
