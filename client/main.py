@@ -64,6 +64,15 @@ def download_proxy(id: int, filename: str):
 # ------------------ Functions -----------------------------------#
 
 
+def get_token():
+    if link.get() == "":
+        pass
+    else:
+        token = connector.register(link.get())
+        username.delete(0, END)
+        username.insert(0, token)
+
+
 def set_creds(out: dict):
     connector.set_username(out["username"])
     connector.set_url(out["url"])
@@ -191,6 +200,7 @@ link.insert(0, "Link")
 email = Entry(credentials_section)
 email.insert(0, "Email")
 save_creds = Button(credentials_section, text="Connect", command=write_config)
+register = Button(credentials_section, text="Register", command=get_token)
 
 # The Files Section
 files_section = LabelFrame(root, text="Files")
@@ -198,13 +208,17 @@ files_section = LabelFrame(root, text="Files")
 
 # --------------- Program ----------------------------#
 if __name__ == "__main__":
+
+    config_exists = Path("credentials/config.json").exists()
     root.geometry("1000x700")
 
     credentials_section.pack(side=LEFT, fill="y")
-    username.pack()
     link.pack()
+    username.pack()
     email.pack()
+
     save_creds.pack()
+    register.pack()
 
     read_config()
 

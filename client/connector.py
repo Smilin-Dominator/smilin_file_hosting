@@ -65,6 +65,14 @@ class API:
             file["filename"] = self.crypto.decrypt_string(file["filename"])
         return the_files
 
+    def register(self, link: str) -> str:
+        url = furl(link)
+        url.path.segments.append("register")
+        req: str = post(url.tostr()).json()
+        self.set_username(req)
+        self.set_url(link)
+        return req
+
     def download_file(self, id: int):
         url = deepcopy(self.base_url)
         url.path.segments.append("download")
