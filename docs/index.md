@@ -28,10 +28,10 @@ Afterwards, open up a Terminal and `cd` to the 'server/' directory and run<br>
 This creates two containers;
 
 - A Python Container (The Main API)
-- A MySQL Container (The Main Database)
+- A MariaDB Container (The Main Database)
 
 The Python Container contains the main server, which exposes Port 2356, and the
-MySQL Container contains a MySQL Database with the user and password specified in the docker-compose file.
+MariaDB Container contains a MariaDB Database with the user and password specified in the docker-compose file.
 
 ### Client
 To run the client, you'll need a python interpreter. The program was written using Python 3.10, so install either 3.10
@@ -40,7 +40,8 @@ or any version above 3.10. You may download it from [here](https://www.python.or
 Afterwards, `cd` to the 'client/', create a virtual environment[^1] and install the requirements. To do this, run;
 
 [^1]:   Instead of using the system-wide or local interpreter, it's safer and more efficient to use a virtual
-        environment.<br>Note that you don't have to use python's "venv", you can even use an Anaconda Environment.
+        environment.<br>Note that you don't have to use python's "venv", you can even use an Anaconda Environment, as
+        specified right under.
 
 
 === "Windows"
@@ -57,10 +58,16 @@ Afterwards, `cd` to the 'client/', create a virtual environment[^1] and install 
 
     `python3 -m pip install -r requirements.txt`
 
+Or, if you're using Anaconda / Miniconda;
+
+`conda env create --file requirements.txt --name smilin_file_client python=3.10`
+
+`conda activate smilin_file_client`
+
 This installs all the packages required by the Client to the virtual environment.
 
 After installing the requirements, you need to install GPG (GNU Privacy Guard), which is essential for the 
-encryption part. You may download it from [here](https://gnupg.org/download/index.html). After installing, GPG, you
+encryption part. You may download it from [here](https://gnupg.org/download/index.html). After installing GPG, you
 need to generate a Key Pair. As this is a process that's not that straightforward, here's a [guide](https://www.redhat.com/sysadmin/creating-gpg-keypairs)
 to follow. But here are my preferences and options essential for the program to function properly;
 
