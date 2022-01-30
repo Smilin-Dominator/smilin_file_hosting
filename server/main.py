@@ -43,6 +43,10 @@ def get_table(username: str):
 @app.on_event("startup")
 async def startup():
     await database.connect()
+    if not engine.dialect.has_table(connection=engine.connect(), table_name="users"):
+        await database.execute("""
+            CREATE TABLE users ( uuid VARCHAR(64) PRIMARY KEY );
+        """)
 
 
 @app.on_event("shutdown")
