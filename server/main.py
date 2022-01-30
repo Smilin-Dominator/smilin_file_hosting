@@ -27,7 +27,7 @@ from copy import deepcopy
 from datetime import datetime
 from sqlalchemy import create_engine
 
-DATABASE_URL = "mysql+pymysql://test:123@MySQL/app"
+DATABASE_URL = "mysql+pymysql://test:123@MariaDB/app"
 files_path = Path("/files/")
 app = FastAPI()
 database = Db(DATABASE_URL)
