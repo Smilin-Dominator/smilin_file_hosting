@@ -7,7 +7,7 @@ from connector import API
 from cryptography import Crypto
 
 # Main Variables
-api = None
+api = API("", "", "")
 crypto = Crypto()
 app = QApplication(argv)
 credentials_window = uic.loadUi("credentials.ui")
@@ -19,6 +19,30 @@ email_input: QLineEdit = credentials_window.email_input
 register_button: QPushButton = credentials_window.register_button
 connect_button: QPushButton = credentials_window.connect_button
 credentials_status: QLabel = credentials_window.credentials_status
+
+
+# ------ Credentials Functions -------------------- #
+
+def credentials_connect():
+    text = [token_input.text(), link_input.text(), email_input.text()]
+    check = [i for i in text if i != ""]
+    if len(check) != 3:
+        credentials_status.setText("Not Enough Arguments!")
+    else:
+        write_file(*text)
+
+
+def credentials_register():
+    if link_input.text() == "":
+        credentials_status.setText("Link Is Empty!")
+    else:
+        token = api.register(link_input.text())
+        credentials_status.setText("Successfully Registered!")
+        token_input.setText(token)
+
+
+connect_button.clicked.connect(credentials_connect)
+register_button.clicked.connect(credentials_register)
 
 
 # ------------ Config File ------------------- #
