@@ -2,3 +2,4 @@ requests
 furl
 rsa
 python-gnupg
+PyQt6
