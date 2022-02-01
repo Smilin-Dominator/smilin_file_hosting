@@ -66,7 +66,7 @@ class CredentialsUI(QMainWindow):
             self.credentials_status.setText("Connection Failed!")
             self.show()
         else:
-            crypto.setup_gpg(email)
+            api.setup_crypto(email)
             self.close()
             main_window.show()
 
@@ -79,7 +79,7 @@ class CredentialsUI(QMainWindow):
                 if not api.test_connection():
                     self.credentials_status.setText("Connection Failed!")
                     return False
-                crypto.setup_gpg(js["email"])
+                api.setup_crypto(js["email"])
                 main_window.show()
                 return True
         except FileNotFoundError:
@@ -136,7 +136,6 @@ class MainUI(QMainWindow):
     class ConnectorFunctions(object):
 
         def __init__(self, meta_class) -> None:
-            self.connector = api
             self.upload_status: QListWidget = meta_class.uploading_files_status
             self.download_status: QListWidget = meta_class.downloading_files_status
             self.upload_queue = Queue(maxsize=5)
@@ -149,14 +148,14 @@ class MainUI(QMainWindow):
             filename: str = self.upload_queue.get()
             file_widget = QListWidgetItem(self.get_filename(filename))
             self.upload_status.addItem(file_widget)
-            self.connector.upload_file(filename)
+            api.upload_file(filename)
             self.upload_status.removeItemWidget(file_widget)
 
         def download_file(self) -> None:
             file_id, filename = self.download_queue.get()
             file_widget = QListWidgetItem(self.get_filename(filename))
             self.download_status.addItem(file_widget)
-            self.connector.download_file(file_id)
+            api.download_file(file_id)
             self.download_status.removeItemWidget(file_widget)
 
         def get_files(self) -> list[dict]:
