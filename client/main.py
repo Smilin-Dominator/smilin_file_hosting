@@ -129,7 +129,7 @@ class MainUI(QMainWindow):
         credentials_window.show()
 
     def upload_file(self):
-        files = self.file_opener.getOpenFileNames()
+        files = self.file_opener.getOpenFileNames()[0]
         for file in files:
             self.ops.upload_queue.put(file)
             Thread(target=self.ops.upload_file).start()
