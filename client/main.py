@@ -79,6 +79,10 @@ def read_file() -> bool:
             crypto.setup_gpg(js["email"])
             return True
     except FileNotFoundError:
+        credentials_status.setText("File Not Found!")
+        return False
+    except KeyError:
+        credentials_status.setText("Not Enough Options!")
         return False
 
 
