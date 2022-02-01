@@ -1,16 +1,52 @@
-from PyQt6 import uic
-from PyQt6.QtWidgets import QApplication, QLineEdit, QPushButton, QLabel
-from sys import argv
 from json import loads, dumps
 from pathlib import Path
+from sys import argv
+
+from PyQt6 import uic
+from PyQt6.QtWidgets import QApplication, QLineEdit, QPushButton, QLabel, QScrollArea, QVBoxLayout, QMainWindow, QWidget, QGroupBox
+
 from connector import API
 from cryptography import Crypto
 
+
+class MainUI(QMainWindow):
+
+    def __init__(self):
+
+        # Declaration
+        self.file_container: QScrollArea = None
+        self.files_layout: QVBoxLayout = QVBoxLayout()
+        self.files_section: QWidget = None
+        self.downloading_files_status: QGroupBox = None
+        self.uploading_files_status: QGroupBox = None
+        self.change_credentials_button:  QPushButton = None
+        self.upload_files_button: QPushButton = None
+
+        # Initial
+        super().__init__()
+        uic.loadUi("main.ui", self)
+        self.setWindowTitle("Smilin' File Client")
+
+        # Post Initial
+        self.change_credentials_button.clicked.connect(self.change_credentials)
+        self.upload_files_button.clicked.connect(self.upload_file)
+
+    def change_credentials(self):
+        self.close()
+        credentials_window.show()
+
+    def upload_file(self):
+        pass
+
+
 # Main Variables
+
 api = API("", "", "")
 crypto = Crypto()
 app = QApplication(argv)
+
 credentials_window = uic.loadUi("credentials.ui")
+main_window = MainUI()
 
 # Credentials Variables (Necessary)
 token_input: QLineEdit = credentials_window.token_input
@@ -65,6 +101,7 @@ def write_file(token: str, link: str, email: str) -> None:
     else:
         crypto.setup_gpg(email)
         credentials_window.close()
+        main_window.show()
 
 
 def read_file() -> bool:
@@ -77,6 +114,7 @@ def read_file() -> bool:
                 credentials_status.setText("Connection Failed!")
                 return False
             crypto.setup_gpg(js["email"])
+            main_window.show()
             return True
     except FileNotFoundError:
         credentials_status.setText("File Not Found!")
@@ -90,4 +128,6 @@ if __name__ == "__main__":
     options = read_file()
     if not options:
         credentials_window.show()
+    else:
+        main_window.show()
     app.exec()
