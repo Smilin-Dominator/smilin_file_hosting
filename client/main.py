@@ -1,9 +1,11 @@
 from json import loads, dumps
 from pathlib import Path
 from sys import argv
+from threading import Thread
+from queue import Queue
 
 from PyQt6 import uic
-from PyQt6.QtWidgets import QApplication, QLineEdit, QPushButton, QLabel, QScrollArea, QVBoxLayout, QMainWindow, QWidget, QGroupBox
+from PyQt6.QtWidgets import QApplication, QLineEdit, QPushButton, QLabel, QScrollArea, QVBoxLayout, QMainWindow, QWidget, QGroupBox, QFileDialog
 
 from connector import API
 from cryptography import Crypto
@@ -100,11 +102,13 @@ class MainUI(QMainWindow):
         self.uploading_files_status: QGroupBox = None
         self.change_credentials_button:  QPushButton = None
         self.upload_files_button: QPushButton = None
+        self.file_opener: QFileDialog = QFileDialog()
 
         # Initial
         super().__init__()
         uic.loadUi("main.ui", self)
         self.setWindowTitle("Smilin' File Client")
+        self.ops = self.ConnectorFunctions()
 
         # Post Initial
         self.change_credentials_button.clicked.connect(self.change_credentials)
@@ -115,7 +119,32 @@ class MainUI(QMainWindow):
         credentials_window.show()
 
     def upload_file(self):
-        pass
+        files = self.file_opener.getOpenFileNames()
+        for file in files:
+            self.ops.upload_queue.put(file)
+            Thread(target=self.ops.upload_file).start()
+
+    def download_file(self, filename: str):
+        self.ops.download_queue.put(filename)
+        Thread(target=self.ops.download_file).start()
+
+    class ConnectorFunctions(object):
+
+        def __init__(self) -> None:
+            self.connector = api
+            self.upload_queue = Queue(maxsize=5)
+            self.download_queue = Queue(maxsize=5)
+
+        def upload_file(self) -> None:
+            filename: str = self.upload_queue.get()
+            self.connector.upload_file(filename)
+
+        def download_file(self) -> None:
+            file_id: int = self.download_queue.get()
+            self.connector.download_file(file_id)
+
+        def get_files(self) -> list[dict]:
+            return self.connector.get_all_files()
 
 
 # Main Variables
