@@ -98,19 +98,29 @@ class MainUI(QMainWindow):
         self.file_container: QScrollArea = None
         self.files_layout: QVBoxLayout = QVBoxLayout()
         self.files_section: QWidget = None
+
         self.downloading_files_status: QGroupBox = None
+        self.downloading_files_layout: QVBoxLayout = QVBoxLayout()
+
         self.uploading_files_status: QGroupBox = None
+        self.uploading_files_layout: QVBoxLayout = QVBoxLayout()
+
         self.change_credentials_button:  QPushButton = None
         self.upload_files_button: QPushButton = None
+
         self.file_opener: QFileDialog = QFileDialog()
 
         # Initial
         super().__init__()
         uic.loadUi("main.ui", self)
         self.setWindowTitle("Smilin' File Client")
-        self.ops = self.ConnectorFunctions()
 
         # Post Initial
+        self.downloading_files_status.setLayout(self.downloading_files_layout)
+        self.uploading_files_status.setLayout(self.uploading_files_layout)
+
+        self.ops = self.ConnectorFunctions(self.uploading_files_layout, self.downloading_files_layout)
+
         self.change_credentials_button.clicked.connect(self.change_credentials)
         self.upload_files_button.clicked.connect(self.upload_file)
 
@@ -124,24 +134,32 @@ class MainUI(QMainWindow):
             self.ops.upload_queue.put(file)
             Thread(target=self.ops.upload_file).start()
 
-    def download_file(self, filename: str):
-        self.ops.download_queue.put(filename)
+    def download_file(self, filename: str, id: int):
+        self.ops.download_queue.put((id, filename))
         Thread(target=self.ops.download_file).start()
 
     class ConnectorFunctions(object):
 
-        def __init__(self) -> None:
+        def __init__(self, upload_status: QVBoxLayout, download_status: QVBoxLayout) -> None:
             self.connector = api
+            self.upload_status = upload_status
+            self.download_status = download_status
             self.upload_queue = Queue(maxsize=5)
             self.download_queue = Queue(maxsize=5)
 
         def upload_file(self) -> None:
             filename: str = self.upload_queue.get()
+            file_widget = QLabel(filename)
+            self.upload_status.addWidget(file_widget)
             self.connector.upload_file(filename)
+            self.upload_status.removeWidget(file_widget)
 
         def download_file(self) -> None:
-            file_id: int = self.download_queue.get()
+            file_id, filename = self.download_queue.get()
+            file_widget = QLabel(filename)
+            self.download_status.addWidget(file_widget)
             self.connector.download_file(file_id)
+            self.download_status.removeWidget(file_widget)
 
         def get_files(self) -> list[dict]:
             return self.connector.get_all_files()
