@@ -148,15 +148,19 @@ class MainUI(QMainWindow):
             filename: str = self.upload_queue.get()
             file_widget = QListWidgetItem(self.get_filename(filename))
             self.upload_status.addItem(file_widget)
+            print("Uploading File '{}' !".format(filename))
             api.upload_file(filename)
-            self.upload_status.removeItemWidget(file_widget)
+            print("Finished Uploading File '{}' !".format(filename))
+            self.upload_status.takeItem(self.upload_status.row(file_widget))
 
         def download_file(self) -> None:
             file_id, filename = self.download_queue.get()
             file_widget = QListWidgetItem(self.get_filename(filename))
             self.download_status.addItem(file_widget)
+            print("Downloading File '{}' !".format(filename))
             api.download_file(file_id)
-            self.download_status.removeItemWidget(file_widget)
+            print("Finished Downloading File '{}' !".format(filename))
+            self.download_status.takeItem(self.download_status.row(file_widget))
 
         def get_files(self) -> list[dict]:
             return self.connector.get_all_files()
