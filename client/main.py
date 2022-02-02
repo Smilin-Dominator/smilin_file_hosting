@@ -179,7 +179,7 @@ class MainUI(QMainWindow):
             file_widget = QListWidgetItem(self.get_filename(filename))
             self.meta_class.downloading_files_status.addItem(file_widget)
             print("Downloading File '{}' !".format(filename))
-            api.download_file(file_id)
+            api.download_file(file_id, filename)
             print("Finished Downloading File '{}' !".format(filename))
             self.download_queue.task_done()
             self.meta_class.downloading_files_status.takeItem(self.meta_class.downloading_files_status.row(file_widget))

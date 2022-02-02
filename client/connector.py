@@ -86,17 +86,15 @@ class API:
         self.set_url(link)
         return req
 
-    def download_file(self, id: int):
+    def download_file(self, id: int, filename: str):
         url = deepcopy(self.base_url)
         url.path.segments.append("download")
         if not self.files.exists():
             self.files.mkdir()
         file = get(url.tostr(), params={"id": id}, stream=True)
         if file.content != b'false':
-            filename = file.headers.get("Content-Disposition")[29:]
-            decrypted_filename = self.crypto.decrypt_string(filename)
-            path_to_temp_file = Path(self.temp, "".join([decrypted_filename, ".gpg"]))
-            path_to_file = Path(self.files, decrypted_filename)
+            path_to_temp_file = Path(self.temp, "".join([filename, ".gpg"]))
+            path_to_file = Path(self.files, filename)
             with open(path_to_temp_file, "wb") as d:
                 d.write(file.content)
             self.crypto.decrypt_file(str(path_to_temp_file), str(path_to_file))
