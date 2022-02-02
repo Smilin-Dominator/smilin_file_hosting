@@ -35,9 +35,6 @@ class API:
         self.files = Path("files")
         self.temp = Path("temp")
 
-        self.decrypted_filenames_array: list[dict] = []
-        self.decrypt_filenames_queue = Queue(maxsize=20)
-
     def setup_crypto(self, email: str):
         self.crypto.setup_gpg(email)
 
@@ -63,20 +60,23 @@ class API:
 
     def get_all_files(self) -> list[dict]:
 
+        the_array: list[dict] = []
+        decrypt_filenames_queue = Queue(maxsize=20)
+
         def decrypt_file_name():
-            index, filename = self.decrypt_filenames_queue.get()
+            index, filename = decrypt_filenames_queue.get()
             decrypted = self.crypto.decrypt_string(filename)
-            self.decrypted_filenames_array[index]["filename"] = decrypted
-            self.decrypt_filenames_queue.task_done()
+            the_array[index]["filename"] = decrypted
+            decrypt_filenames_queue.task_done()
 
         url = deepcopy(self.base_url)
         url.path.segments.append("list")
-        self.decrypted_filenames_array = get(url.tostr()).json()
-        for x, file in enumerate(self.decrypted_filenames_array):
-            self.decrypt_filenames_queue.put((x, file["filename"]))
+        the_array = get(url.tostr()).json()
+        for x, file in enumerate(the_array):
+            decrypt_filenames_queue.put((x, file["filename"]))
             Thread(target=decrypt_file_name).start()
-        self.decrypt_filenames_queue.join()
-        return self.decrypted_filenames_array
+        decrypt_filenames_queue.join()
+        return the_array
 
     def register(self, link: str) -> str:
         url = furl(link)
