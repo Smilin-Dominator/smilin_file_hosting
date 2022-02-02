@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QGroupBox" name="operations_container">
+   <widget class="QGroupBox" name="status_container">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -24,16 +24,9 @@
      </rect>
     </property>
     <property name="title">
-     <string>Operations</string>
+     <string>Status</string>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_2">
-     <item>
-      <widget class="QPushButton" name="upload_files_button">
-       <property name="text">
-        <string>Upload File</string>
-       </property>
-      </widget>
-     </item>
      <item>
       <widget class="QGroupBox" name="uploading_files_container">
        <property name="title">
@@ -44,6 +37,16 @@
          <widget class="QListWidget" name="uploading_files_status"/>
         </item>
        </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="status_bar">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
       </widget>
      </item>
      <item>
@@ -58,13 +61,6 @@
        </layout>
       </widget>
      </item>
-     <item>
-      <widget class="QPushButton" name="change_credentials_button">
-       <property name="text">
-        <string>Credentials</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </widget>
    <widget class="QGroupBox" name="file_container">
@@ -73,7 +69,7 @@
       <x>320</x>
       <y>10</y>
       <width>831</width>
-      <height>671</height>
+      <height>551</height>
      </rect>
     </property>
     <property name="title">
@@ -90,6 +86,49 @@
          <string notr="true">File</string>
         </property>
        </column>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QGroupBox" name="operations_container">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>560</y>
+      <width>831</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Operations</string>
+    </property>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="2" column="1">
+      <widget class="QPushButton" name="change_credentials_button">
+       <property name="text">
+        <string>Credentials</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QPushButton" name="upload_files_button">
+       <property name="text">
+        <string>Upload File</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="delete_selected">
+       <property name="text">
+        <string>Delete Selected</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QPushButton" name="download_selected">
+       <property name="text">
+        <string>Download Selected</string>
+       </property>
       </widget>
      </item>
     </layout>
