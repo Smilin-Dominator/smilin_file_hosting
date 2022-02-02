@@ -16,8 +16,17 @@ from cryptography import Crypto
 
 
 class CredentialsUI(QMainWindow):
+    """
+    This class is used to check the Validity of your credentials. If they're valid, you'll go straight
+    to the main UI. If the file doesn't exist or there's a missing field or the connection fails, it'll
+    display this window.
+    """
 
     def __init__(self):
+        """
+        This loads a .ui file called "credentials.ui" (Which was designed with QtCreator) and expands it. I've
+        pre-declared the Variables before loading the file for convenience.
+        """
 
         # Declaration
         self.token_input: QLineEdit = None
@@ -36,7 +45,13 @@ class CredentialsUI(QMainWindow):
         self.connect_button.clicked.connect(self.credentials_connect)
         self.register_button.clicked.connect(self.credentials_register)
 
-    def credentials_connect(self):
+    def credentials_connect(self) -> None:
+        """
+        This checks if all 3 Input Fields are filled;
+
+        - If they are, it writes to the file ('credentials/config.json').
+        - If they aren't, it sets the status to "Not Enough Arguments!"
+        """
         text = [self.token_input.text(), self.link_input.text(), self.email_input.text()]
         check = [i for i in text if i != ""]
         if len(check) != 3:
@@ -44,7 +59,13 @@ class CredentialsUI(QMainWindow):
         else:
             self.write_file(*text)
 
-    def credentials_register(self):
+    def credentials_register(self) -> None:
+        """
+        This checks if the link entry is filled and registers you.
+        By registering, I mean, it sends a GET request to 'url/register', which
+        returns a unique UUID token, which you will use to connect. Note that if you
+        lose this token, you won't be able to get your files!
+        """
         if self.link_input.text() == "":
             self.credentials_status.setText("Link Is Empty!")
         else:
@@ -53,6 +74,16 @@ class CredentialsUI(QMainWindow):
             self.token_input.setText(token)
 
     def write_file(self, token: str, link: str, email: str) -> None:
+        """
+        This accepts the credential parameters and writes to the file
+
+        :param token: The Unique UUID Obtained from Registering or an Old One
+        :param link: The link to the server
+        :param email: Email for the GPG Key
+
+        If the connection fails, it'll re-display the credentials dialog. Otherwise, it'll setup the API and launch
+        the main user interface.
+        """
         global main_window, api
         out = {
             "token": token,
@@ -76,6 +107,13 @@ class CredentialsUI(QMainWindow):
             main_window.list_items()
 
     def read_file(self) -> bool:
+        """
+        This reads the options of the config.json file. If the connection succeeds, it'll setup the API and take
+        you to the Main User Interface. Otherwise, it'll redisplay the credentials dialog.
+
+        :returns: True if the credentials are valid and the connection Succeeds. False if; The Connection Fails,
+            The file doesn't exist or there's a missing option
+        """
         global api, main_window
         try:
             with open("credentials/config.json", "r") as r:
