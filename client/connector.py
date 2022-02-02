@@ -21,8 +21,8 @@ from pathlib import Path
 from furl import furl
 from requests import get, post, delete, ConnectionError
 from cryptography import Crypto
-from threading import Thread
 from queue import Queue
+
 
 class API:
 
@@ -59,23 +59,9 @@ class API:
         self.base_url.path.segments = [self.username]
 
     def get_all_files(self) -> list[dict]:
-
-        the_array: list[dict] = []
-        decrypt_filenames_queue = Queue(maxsize=20)
-
-        def decrypt_file_name():
-            index, filename = decrypt_filenames_queue.get()
-            decrypted = self.crypto.decrypt_string(filename)
-            the_array[index]["filename"] = decrypted
-            decrypt_filenames_queue.task_done()
-
         url = deepcopy(self.base_url)
         url.path.segments.append("list")
         the_array = get(url.tostr()).json()
-        for x, file in enumerate(the_array):
-            decrypt_filenames_queue.put((x, file["filename"]))
-            Thread(target=decrypt_file_name).start()
-        decrypt_filenames_queue.join()
         return the_array
 
     def register(self, link: str) -> str:

@@ -1,3 +1,4 @@
+from time import time
 from json import loads, dumps
 from pathlib import Path
 from queue import Queue
@@ -307,17 +308,24 @@ class MainUI(QMainWindow):
 
         def get_files(self) -> None:
             """ This clears all the entries in the files section and refreshes the list """
+
+            def insert_element(file: dict):
+                wid = QTreeWidgetItem()
+                decrypted_name = crypto.decrypt_string(file["filename"])
+                file["filename"] = decrypted_name
+                wid.setText(0, decrypted_name)
+                wid.setCheckState(0, Qt.CheckState.Unchecked)
+                self.meta_class.files.addTopLevelItem(wid)
+
             self.refresh_queue.get()
             self.meta_class.files_ar.clear() if not (self.meta_class.files_ar is None) else None
             self.meta_class.files_ar = api.get_all_files()
             self.meta_class.files.clear()
-            items = []
+
+            t = time()
             for file in self.meta_class.files_ar:
-                wid = QTreeWidgetItem()
-                wid.setText(0, file["filename"])
-                wid.setCheckState(0, Qt.CheckState.Unchecked)
-                items.append(wid)
-            self.meta_class.files.addTopLevelItems(items)
+                insert_element(file)
+            print("Took '{}' Seconds To Decrypt All Elements!".format(time() - t))
             self.refresh_queue.task_done()
 
 
@@ -334,7 +342,4 @@ if __name__ == "__main__":
     options = credentials_window.read_file()
     if not options:
         credentials_window.show()
-    else:
-        main_window.show()
-        main_window.list_items()
     app.exec()
