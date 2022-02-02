@@ -135,8 +135,15 @@ class CredentialsUI(QMainWindow):
 
 
 class MainUI(QMainWindow):
+    """
+    This is the main user interface of the program. All the operations are done here.
+    """
 
     def __init__(self):
+        """
+        It loads a UI file called 'main.ui' which was designed in QtCreator. I've pre-declared
+        the variables for convenience.
+        """
 
         # Declaration
         self.files: QTreeWidget = None
@@ -167,22 +174,37 @@ class MainUI(QMainWindow):
         self.delete_selected.clicked.connect(self.delete_files)
         self.refresh_button.clicked.connect(self.list_items)
 
-    def list_items(self):
+    def list_items(self) -> None:
+        """
+        Checks if the refresh queue is full. If it's not, it starts a new thread to start refreshing
+        """
         if not self.ops.refresh_queue.full():
             self.ops.refresh_queue.put(None)
             Thread(target=self.ops.get_files).start()
 
-    def change_credentials(self):
+    def change_credentials(self) -> None:
+        """
+        This closes the current window and opens the credentials window. There's no need to re-open this
+        window as it gets re-opened when you write the credentials.
+        """
         self.close()
         credentials_window.show()
 
-    def upload_file(self):
+    def upload_file(self) -> None:
+        """
+        This gets filenames from the file-opening dialog, adds them to the upload queue and starts new Threads to
+         upload each file.
+        """
         files = self.file_opener.getOpenFileNames()[0]
         for file in files:
             self.ops.upload_queue.put(file)
             Thread(target=self.ops.upload_file).start()
 
     def download_files(self):
+        """
+        This gets all the Checked Items, adds them to the download queue and starts new Threads to download
+        each file.
+        """
         it = QTreeWidgetItemIterator(self.files, QTreeWidgetItemIterator.IteratorFlag.Checked)
         while it.value():
             item = it.value()
@@ -193,6 +215,9 @@ class MainUI(QMainWindow):
             it += 1
 
     def delete_files(self):
+        """
+        This gets all the checked items, adds them to the delete queue and starts new Threads to delete each file.
+        """
         it = QTreeWidgetItemIterator(self.files, QTreeWidgetItemIterator.IteratorFlag.Checked)
         while it.value():
             item = it.value()
@@ -202,6 +227,11 @@ class MainUI(QMainWindow):
             it += 1
 
     class ConnectorFunctions(object):
+        """
+        This Class was built to support its parent class (MainUI). All the functions in the parent class are the
+        plural version of the functions in this class. That's because this is the class that does all the operations
+        and the parent class launches a Thread(s) when performing any of the below functions.
+        """
 
         def __init__(self, meta_class) -> None:
             self.meta_class = meta_class
