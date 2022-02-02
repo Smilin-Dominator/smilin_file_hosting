@@ -53,7 +53,7 @@ class CredentialsUI(QMainWindow):
             self.token_input.setText(token)
 
     def write_file(self, token: str, link: str, email: str) -> None:
-        global crypto, main_window
+        global main_window, api
         out = {
             "token": token,
             "link": link,
@@ -76,7 +76,7 @@ class CredentialsUI(QMainWindow):
             main_window.list_items()
 
     def read_file(self) -> bool:
-        global api
+        global api, main_window
         try:
             with open("credentials/config.json", "r") as r:
                 js = loads(r.read())
@@ -193,4 +193,4 @@ if __name__ == "__main__":
     else:
         main_window.show()
         main_window.list_items()
-        app.exec()
+    app.exec()
