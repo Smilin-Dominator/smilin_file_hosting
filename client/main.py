@@ -145,10 +145,7 @@ class MainUI(QMainWindow):
     class ConnectorFunctions(object):
 
         def __init__(self, meta_class) -> None:
-            self.upload_status: QListWidget = meta_class.uploading_files_status
-            self.download_status: QListWidget = meta_class.downloading_files_status
-            self.files: QTreeWidget = meta_class.files
-            self.files_ar: list[dict] = meta_class.files_ar
+            self.meta_class = meta_class
             self.upload_queue = Queue(maxsize=5)
             self.download_queue = Queue(maxsize=5)
 
@@ -158,34 +155,34 @@ class MainUI(QMainWindow):
         def upload_file(self) -> None:
             filename: str = self.upload_queue.get()
             file_widget = QListWidgetItem(self.get_filename(filename))
-            self.upload_status.addItem(file_widget)
+            self.meta_class.uploading_files_status.addItem(file_widget)
             print("Uploading File '{}' !".format(filename))
             api.upload_file(filename)
             print("Finished Uploading File '{}' !".format(filename))
             self.upload_queue.task_done()
-            self.upload_status.takeItem(self.upload_status.row(file_widget))
+            self.meta_class.uploading_files_status.takeItem(self.meta_class.uploading_files_status.row(file_widget))
 
         def download_file(self) -> None:
             file_id, filename = self.download_queue.get()
             file_widget = QListWidgetItem(self.get_filename(filename))
-            self.download_status.addItem(file_widget)
+            self.meta_class.downloading_files_status.addItem(file_widget)
             print("Downloading File '{}' !".format(filename))
             api.download_file(file_id)
             print("Finished Downloading File '{}' !".format(filename))
             self.download_queue.task_done()
-            self.download_status.takeItem(self.download_status.row(file_widget))
+            self.meta_class.downloading_files_status.takeItem(self.meta_class.downloading_files_status.row(file_widget))
 
         def get_files(self) -> None:
-            self.files_ar.clear() if not (self.files_ar is None) else None
-            self.files_ar = api.get_all_files()
-            self.files.clear()
+            self.meta_class.files_ar.clear() if not (self.meta_class.files_ar is None) else None
+            self.meta_class.files_ar = api.get_all_files()
+            self.meta_class.files.clear()
             items = []
-            for file in self.files_ar:
+            for file in self.meta_class.files_ar:
                 wid = QTreeWidgetItem()
                 wid.setText(0, file["filename"])
                 wid.setCheckState(0, Qt.CheckState.Unchecked)
                 items.append(wid)
-            self.files.addTopLevelItems(items)
+            self.meta_class.files.addTopLevelItems(items)
 
 
 # Main Variables
