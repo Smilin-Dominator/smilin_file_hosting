@@ -102,6 +102,7 @@ class MainUI(QMainWindow):
 
         # Declaration
         self.files: QTreeWidget = None
+        self.files_ar: list[dict] = None
 
         self.status_bar: QLabel = None
         self.downloading_files_status: QListWidget = QListWidget()
@@ -147,6 +148,7 @@ class MainUI(QMainWindow):
             self.upload_status: QListWidget = meta_class.uploading_files_status
             self.download_status: QListWidget = meta_class.downloading_files_status
             self.files: QTreeWidget = meta_class.files
+            self.files_ar: list[dict] = meta_class.files_ar
             self.upload_queue = Queue(maxsize=5)
             self.download_queue = Queue(maxsize=5)
 
@@ -174,10 +176,11 @@ class MainUI(QMainWindow):
             self.download_status.takeItem(self.download_status.row(file_widget))
 
         def get_files(self) -> None:
-            files = api.get_all_files()
+            self.files_ar.clear() if not (self.files_ar is None) else None
+            self.files_ar = api.get_all_files()
             self.files.clear()
             items = []
-            for file in files:
+            for file in self.files_ar:
                 wid = QTreeWidgetItem()
                 wid.setText(0, file["filename"])
                 wid.setCheckState(0, Qt.CheckState.Unchecked)
