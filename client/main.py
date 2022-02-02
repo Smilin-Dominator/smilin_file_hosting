@@ -73,6 +73,7 @@ class CredentialsUI(QMainWindow):
             api.setup_crypto(email)
             self.close()
             main_window.show()
+            main_window.list_items()
 
     def read_file(self) -> bool:
         global api
@@ -85,6 +86,7 @@ class CredentialsUI(QMainWindow):
                     return False
                 api.setup_crypto(js["email"])
                 main_window.show()
+                main_window.list_items()
                 return True
         except FileNotFoundError:
             self.credentials_status.setText("File Not Found!")
@@ -118,7 +120,6 @@ class MainUI(QMainWindow):
         self.ops = self.ConnectorFunctions(self)
         self.change_credentials_button.clicked.connect(self.change_credentials)
         self.upload_files_button.clicked.connect(self.upload_file)
-        self.list_items()
 
     def list_items(self):
         Thread(target=self.ops.get_files).start()
@@ -191,4 +192,5 @@ if __name__ == "__main__":
         credentials_window.show()
     else:
         main_window.show()
+        main_window.list_items()
         app.exec()
