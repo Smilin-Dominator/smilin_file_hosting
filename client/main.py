@@ -103,9 +103,12 @@ class MainUI(QMainWindow):
         # Declaration
         self.files: QTreeWidget = None
 
+        self.status_bar: QLabel = None
         self.downloading_files_status: QListWidget = QListWidget()
         self.uploading_files_status: QListWidget = QListWidget()
 
+        self.download_selected: QPushButton = None
+        self.delete_selected: QPushButton = None
         self.change_credentials_button: QPushButton = None
         self.upload_files_button: QPushButton = None
 
