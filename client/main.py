@@ -172,11 +172,14 @@ class MainUI(QMainWindow):
 
         def get_files(self) -> None:
             files = api.get_all_files()
+            self.files.clear()
+            items = []
             for file in files:
                 wid = QTreeWidgetItem()
                 wid.setText(0, file["filename"])
                 wid.setCheckState(0, Qt.CheckState.Unchecked)
-                self.files.addTopLevelItem(wid)
+                items.append(wid)
+            self.files.addTopLevelItems(items)
 
 
 # Main Variables
