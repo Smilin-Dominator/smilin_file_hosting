@@ -157,6 +157,7 @@ class MainUI(QMainWindow):
             print("Uploading File '{}' !".format(filename))
             api.upload_file(filename)
             print("Finished Uploading File '{}' !".format(filename))
+            self.upload_queue.task_done()
             self.upload_status.takeItem(self.upload_status.row(file_widget))
 
         def download_file(self) -> None:
@@ -166,13 +167,14 @@ class MainUI(QMainWindow):
             print("Downloading File '{}' !".format(filename))
             api.download_file(file_id)
             print("Finished Downloading File '{}' !".format(filename))
+            self.download_queue.task_done()
             self.download_status.takeItem(self.download_status.row(file_widget))
 
         def get_files(self) -> None:
             files = api.get_all_files()
             for file in files:
                 wid = QTreeWidgetItem()
-                wid.setText(0, wid["filename"])
+                wid.setText(0, str(file["filename"]))
                 wid.setCheckState(0, Qt.CheckState.Unchecked)
                 self.files.addTopLevelItem(wid)
 

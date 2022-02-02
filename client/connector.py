@@ -67,6 +67,7 @@ class API:
             index, filename = self.decrypt_filenames_queue.get()
             decrypted = self.crypto.decrypt_string(filename)
             self.decrypted_filenames_array[index]["filename"] = decrypted
+            self.decrypt_filenames_queue.task_done()
 
         url = deepcopy(self.base_url)
         url.path.segments.append("list")
