@@ -124,6 +124,7 @@ class MainUI(QMainWindow):
         self.ops = self.ConnectorFunctions(self)
         self.change_credentials_button.clicked.connect(self.change_credentials)
         self.upload_files_button.clicked.connect(self.upload_file)
+        self.download_selected.clicked.connect(self.download_files)
 
     def list_items(self):
         Thread(target=self.ops.get_files).start()
@@ -138,9 +139,20 @@ class MainUI(QMainWindow):
             self.ops.upload_queue.put(file)
             Thread(target=self.ops.upload_file).start()
 
-    def download_file(self, filename: str, id: int):
-        self.ops.download_queue.put((id, filename))
-        Thread(target=self.ops.download_file).start()
+    def download_files(self):
+        id_and_files: list[tuple[str, int]] = []
+        it = QTreeWidgetItemIterator(self.files, QTreeWidgetItemIterator.IteratorFlag.Checked)
+        while it.value():
+            item = it.value()
+            filename = item.text(0)
+            id = 0
+            for el in self.files_ar:
+                if el.get("filename") == filename:
+                    id = el.get("id")
+                    break
+            self.ops.download_queue.put((id, filename))
+            Thread(target=self.ops.download_file).start()
+            it += 1
 
     class ConnectorFunctions(object):
 
