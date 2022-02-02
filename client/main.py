@@ -230,10 +230,17 @@ class MainUI(QMainWindow):
         """
         This Class was built to support its parent class (MainUI). All the functions in the parent class are the
         plural version of the functions in this class. That's because this is the class that does all the operations
-        and the parent class launches a Thread(s) when performing any of the below functions.
+        and the parent class launches a Thread(s) when performing any of the below functions. There's alot of
+        interaction between this class and the parent class.
         """
 
         def __init__(self, meta_class) -> None:
+            """
+            This is the constructor of the operations class. It contains the parent class instance along with
+            queues for downloading, uploading, deleting and refreshing.
+
+            :param meta_class: The instance of the parent class
+            """
             self.meta_class = meta_class
             self.upload_queue = Queue(maxsize=5)
             self.download_queue = Queue(maxsize=5)
@@ -241,20 +248,37 @@ class MainUI(QMainWindow):
             self.refresh_queue = Queue(maxsize=1)
 
         def get_id(self, filename: str) -> int:
+            """
+            Iterates through the file array until it finds the ID that matches the filename
+
+            :param filename: The filename you're looking for
+            :return: The ID of the Filename
+            """
             for el in self.meta_class.files_ar:
                 if el.get("filename") == filename:
                     return el.get("id")
 
-        def get_filename(self, path: str):
+        def get_filename(self, path: str) -> str:
+            """
+            This accepts a path and returns the filename
+
+            :param path: The Absolute / Relative Path
+            :return: The Filename
+            """
             return Path(path).name
 
         def delete_file(self) -> None:
+            """ This gets an ID of a File from the queue and deletes it """
             id: int = self.delete_queue.get()
             api.delete_file(id)
             self.meta_class.list_items()
             self.delete_queue.task_done()
 
         def upload_file(self) -> None:
+            """
+            This gets a path to a file from the queue, adds the filename to the uploading_files status,
+            uploads it and refreshes the file list.
+            """
             filename: str = self.upload_queue.get()
             file_widget = QListWidgetItem(self.get_filename(filename))
             self.meta_class.uploading_files_status.addItem(file_widget)
@@ -266,6 +290,10 @@ class MainUI(QMainWindow):
             self.meta_class.uploading_files_status.takeItem(self.meta_class.uploading_files_status.row(file_widget))
 
         def download_file(self) -> None:
+            """
+            This gets an ID and a Filename from the queue, adds the filename to the download_files status and
+            downloads the file
+            """
             file_id, filename = self.download_queue.get()
             file_widget = QListWidgetItem(self.get_filename(filename))
             self.meta_class.downloading_files_status.addItem(file_widget)
@@ -276,6 +304,7 @@ class MainUI(QMainWindow):
             self.meta_class.downloading_files_status.takeItem(self.meta_class.downloading_files_status.row(file_widget))
 
         def get_files(self) -> None:
+            """ This clears all the entries in the files section and refreshes the list """
             self.refresh_queue.get()
             self.meta_class.files_ar.clear() if not (self.meta_class.files_ar is None) else None
             self.meta_class.files_ar = api.get_all_files()
