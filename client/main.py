@@ -1,11 +1,15 @@
 from json import loads, dumps
 from pathlib import Path
+from queue import Queue
 from sys import argv
 from threading import Thread
-from queue import Queue
 
 from PyQt6 import uic
-from PyQt6.QtWidgets import QApplication, QLineEdit, QPushButton, QLabel, QScrollArea, QVBoxLayout, QMainWindow, QWidget, QListWidgetItem, QFileDialog, QListWidget
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import (
+    QApplication, QLineEdit, QPushButton, QLabel, QMainWindow, QListWidgetItem, QFileDialog,
+    QListWidget, QTreeWidget, QTreeWidgetItem, QTreeWidgetItemIterator
+)
 
 from connector import API
 from cryptography import Crypto
@@ -95,14 +99,12 @@ class MainUI(QMainWindow):
     def __init__(self):
 
         # Declaration
-        self.file_container: QScrollArea = None
-        self.files_layout: QVBoxLayout = QVBoxLayout()
-        self.files_section: QWidget = None
+        self.files: QTreeWidget = None
 
         self.downloading_files_status: QListWidget = QListWidget()
         self.uploading_files_status: QListWidget = QListWidget()
 
-        self.change_credentials_button:  QPushButton = None
+        self.change_credentials_button: QPushButton = None
         self.upload_files_button: QPushButton = None
 
         self.file_opener: QFileDialog = QFileDialog()
@@ -113,11 +115,13 @@ class MainUI(QMainWindow):
         self.setWindowTitle("Smilin' File Client")
 
         # Post Initial
-
         self.ops = self.ConnectorFunctions(self)
-
         self.change_credentials_button.clicked.connect(self.change_credentials)
         self.upload_files_button.clicked.connect(self.upload_file)
+        self.list_items()
+
+    def list_items(self):
+        Thread(target=self.ops.get_files).start()
 
     def change_credentials(self):
         self.close()
@@ -138,6 +142,7 @@ class MainUI(QMainWindow):
         def __init__(self, meta_class) -> None:
             self.upload_status: QListWidget = meta_class.uploading_files_status
             self.download_status: QListWidget = meta_class.downloading_files_status
+            self.files: QTreeWidget = meta_class.files
             self.upload_queue = Queue(maxsize=5)
             self.download_queue = Queue(maxsize=5)
 
@@ -162,8 +167,13 @@ class MainUI(QMainWindow):
             print("Finished Downloading File '{}' !".format(filename))
             self.download_status.takeItem(self.download_status.row(file_widget))
 
-        def get_files(self) -> list[dict]:
-            return self.connector.get_all_files()
+        def get_files(self) -> None:
+            files = api.get_all_files()
+            for file in files:
+                wid = QTreeWidgetItem()
+                wid.setText(0, wid["filename"])
+                wid.setCheckState(0, Qt.CheckState.Unchecked)
+                self.files.addTopLevelItem(wid)
 
 
 # Main Variables

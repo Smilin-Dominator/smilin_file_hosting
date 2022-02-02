@@ -14,46 +14,13 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QScrollArea" name="file_container">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>0</y>
-      <width>851</width>
-      <height>681</height>
-     </rect>
-    </property>
-    <property name="verticalScrollBarPolicy">
-     <enum>Qt::ScrollBarAlwaysOn</enum>
-    </property>
-    <property name="horizontalScrollBarPolicy">
-     <enum>Qt::ScrollBarAlwaysOff</enum>
-    </property>
-    <property name="sizeAdjustPolicy">
-     <enum>QAbstractScrollArea::AdjustToContents</enum>
-    </property>
-    <property name="widgetResizable">
-     <bool>true</bool>
-    </property>
-    <widget class="QWidget" name="files_section">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>832</width>
-       <height>679</height>
-      </rect>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout"/>
-    </widget>
-   </widget>
    <widget class="QGroupBox" name="operations_container">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>0</y>
-      <width>296</width>
-      <height>681</height>
+      <y>10</y>
+      <width>301</width>
+      <height>671</height>
      </rect>
     </property>
     <property name="title">
@@ -96,6 +63,33 @@
        <property name="text">
         <string>Credentials</string>
        </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QGroupBox" name="file_container">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>10</y>
+      <width>831</width>
+      <height>671</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Files</string>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QTreeWidget" name="files">
+       <property name="mouseTracking">
+        <bool>true</bool>
+       </property>
+       <column>
+        <property name="text">
+         <string notr="true">File</string>
+        </property>
+       </column>
       </widget>
      </item>
     </layout>
