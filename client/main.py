@@ -4,6 +4,7 @@ from pathlib import Path
 from queue import Queue
 from sys import argv
 from threading import Thread
+from concurrent.futures import ThreadPoolExecutor
 
 from PyQt6 import uic
 from PyQt6.QtCore import Qt
@@ -323,8 +324,8 @@ class MainUI(QMainWindow):
             self.meta_class.files.clear()
 
             t = time()
-            for file in self.meta_class.files_ar:
-                insert_element(file)
+            with ThreadPoolExecutor(max_workers=4) as exe:
+                exe.map(insert_element, self.meta_class.files_ar)
             print("Took '{}' Seconds To Decrypt All Elements!".format(time() - t))
             self.refresh_queue.task_done()
 
