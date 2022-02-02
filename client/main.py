@@ -125,6 +125,7 @@ class MainUI(QMainWindow):
         self.change_credentials_button.clicked.connect(self.change_credentials)
         self.upload_files_button.clicked.connect(self.upload_file)
         self.download_selected.clicked.connect(self.download_files)
+        self.delete_selected.clicked.connect(self.delete_files)
 
     def list_items(self):
         Thread(target=self.ops.get_files).start()
@@ -140,7 +141,6 @@ class MainUI(QMainWindow):
             Thread(target=self.ops.upload_file).start()
 
     def download_files(self):
-        id_and_files: list[tuple[str, int]] = []
         it = QTreeWidgetItemIterator(self.files, QTreeWidgetItemIterator.IteratorFlag.Checked)
         while it.value():
             item = it.value()
@@ -150,12 +150,23 @@ class MainUI(QMainWindow):
             Thread(target=self.ops.download_file).start()
             it += 1
 
+    def delete_files(self):
+        it = QTreeWidgetItemIterator(self.files, QTreeWidgetItemIterator.IteratorFlag.Checked)
+        while it.value():
+            item = it.value()
+            id = self.ops.get_id(item.text(0))
+            self.ops.delete_queue.put(id)
+            Thread(target=self.ops.delete_file).start()
+            it += 1
+
+
     class ConnectorFunctions(object):
 
         def __init__(self, meta_class) -> None:
             self.meta_class = meta_class
             self.upload_queue = Queue(maxsize=5)
             self.download_queue = Queue(maxsize=5)
+            self.delete_queue = Queue(maxsize=0)
 
         def get_id(self, filename: str) -> int:
             for el in self.meta_class.files_ar:
@@ -164,6 +175,10 @@ class MainUI(QMainWindow):
 
         def get_filename(self, path: str):
             return Path(path).name
+
+        def delete_file(self) -> None:
+            id: int = self.delete_queue.get()
+            api.delete_file(id)
 
         def upload_file(self) -> None:
             filename: str = self.upload_queue.get()
