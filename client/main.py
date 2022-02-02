@@ -102,6 +102,7 @@ class CredentialsUI(QMainWindow):
             self.show()
         else:
             api.setup_crypto(email)
+            crypto.setup_gpg(email)
             self.close()
             main_window.show()
             main_window.list_items()
@@ -123,6 +124,7 @@ class CredentialsUI(QMainWindow):
                     self.credentials_status.setText("Connection Failed!")
                     return False
                 api.setup_crypto(js["email"])
+                crypto.setup_gpg(js["email"])
                 main_window.show()
                 main_window.list_items()
                 return True
