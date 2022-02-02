@@ -174,7 +174,7 @@ class MainUI(QMainWindow):
             files = api.get_all_files()
             for file in files:
                 wid = QTreeWidgetItem()
-                wid.setText(0, str(file["filename"]))
+                wid.setText(0, file["filename"])
                 wid.setCheckState(0, Qt.CheckState.Unchecked)
                 self.files.addTopLevelItem(wid)
 

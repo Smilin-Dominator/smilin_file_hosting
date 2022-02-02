@@ -39,7 +39,7 @@ class Crypto:
         self.email = email
 
     def decrypt_string(self, string: bytes) -> str:
-        return self.gpg.decrypt(string)
+        return str(self.gpg.decrypt(string))
 
     def encrypt_string(self, string: str) -> bytes:
         return self.gpg.encrypt(string, recipients=[self.email])
