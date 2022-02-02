@@ -21,7 +21,8 @@ from pathlib import Path
 from furl import furl
 from requests import get, post, delete, ConnectionError
 from cryptography import Crypto
-
+from threading import Thread
+from queue import Queue
 
 class API:
 
@@ -33,6 +34,9 @@ class API:
         self.crypto = Crypto()
         self.files = Path("files")
         self.temp = Path("temp")
+
+        self.decrypted_filenames_array: list[dict] = []
+        self.decrypt_filenames_queue = Queue(maxsize=20)
 
     def setup_crypto(self, email: str):
         self.crypto.setup_gpg(email)
@@ -58,12 +62,20 @@ class API:
         self.base_url.path.segments = [self.username]
 
     def get_all_files(self) -> list[dict]:
+
+        def decrypt_file_name():
+            index, filename = self.decrypt_filenames_queue.get()
+            decrypted = self.crypto.decrypt_string(filename)
+            self.decrypted_filenames_array[index]["filename"] = decrypted
+
         url = deepcopy(self.base_url)
         url.path.segments.append("list")
-        the_files = get(url.tostr()).json()
-        for file in the_files:
-            file["filename"] = self.crypto.decrypt_string(file["filename"])
-        return the_files
+        self.decrypted_filenames_array = get(url.tostr()).json()
+        for x, file in enumerate(self.decrypted_filenames_array):
+            self.decrypt_filenames_queue.put((x, file["filename"]))
+            Thread(target=decrypt_file_name).start()
+        self.decrypt_filenames_queue.join()
+        return self.decrypted_filenames_array
 
     def register(self, link: str) -> str:
         url = furl(link)
