@@ -145,11 +145,7 @@ class MainUI(QMainWindow):
         while it.value():
             item = it.value()
             filename = item.text(0)
-            id = 0
-            for el in self.files_ar:
-                if el.get("filename") == filename:
-                    id = el.get("id")
-                    break
+            id = self.ops.get_id(filename)
             self.ops.download_queue.put((id, filename))
             Thread(target=self.ops.download_file).start()
             it += 1
@@ -160,6 +156,11 @@ class MainUI(QMainWindow):
             self.meta_class = meta_class
             self.upload_queue = Queue(maxsize=5)
             self.download_queue = Queue(maxsize=5)
+
+        def get_id(self, filename: str) -> int:
+            for el in self.meta_class.files_ar:
+                if el.get("filename") == filename:
+                    return el.get("id")
 
         def get_filename(self, path: str):
             return Path(path).name
