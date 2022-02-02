@@ -112,6 +112,7 @@ class MainUI(QMainWindow):
         self.delete_selected: QPushButton = None
         self.change_credentials_button: QPushButton = None
         self.upload_files_button: QPushButton = None
+        self.refresh_button: QPushButton = None
 
         self.file_opener: QFileDialog = QFileDialog()
 
@@ -126,9 +127,12 @@ class MainUI(QMainWindow):
         self.upload_files_button.clicked.connect(self.upload_file)
         self.download_selected.clicked.connect(self.download_files)
         self.delete_selected.clicked.connect(self.delete_files)
+        self.refresh_button.clicked.connect(self.list_items)
 
     def list_items(self):
-        Thread(target=self.ops.get_files).start()
+        if not self.ops.refresh_queue.full():
+            self.ops.refresh_queue.put(None)
+            Thread(target=self.ops.get_files).start()
 
     def change_credentials(self):
         self.close()
@@ -159,7 +163,6 @@ class MainUI(QMainWindow):
             Thread(target=self.ops.delete_file).start()
             it += 1
 
-
     class ConnectorFunctions(object):
 
         def __init__(self, meta_class) -> None:
@@ -167,6 +170,7 @@ class MainUI(QMainWindow):
             self.upload_queue = Queue(maxsize=5)
             self.download_queue = Queue(maxsize=5)
             self.delete_queue = Queue(maxsize=0)
+            self.refresh_queue = Queue(maxsize=1)
 
         def get_id(self, filename: str) -> int:
             for el in self.meta_class.files_ar:
@@ -179,6 +183,8 @@ class MainUI(QMainWindow):
         def delete_file(self) -> None:
             id: int = self.delete_queue.get()
             api.delete_file(id)
+            self.meta_class.list_items()
+            self.delete_queue.task_done()
 
         def upload_file(self) -> None:
             filename: str = self.upload_queue.get()
@@ -188,6 +194,7 @@ class MainUI(QMainWindow):
             api.upload_file(filename)
             print("Finished Uploading File '{}' !".format(filename))
             self.upload_queue.task_done()
+            self.meta_class.list_items()
             self.meta_class.uploading_files_status.takeItem(self.meta_class.uploading_files_status.row(file_widget))
 
         def download_file(self) -> None:
@@ -201,6 +208,7 @@ class MainUI(QMainWindow):
             self.meta_class.downloading_files_status.takeItem(self.meta_class.downloading_files_status.row(file_widget))
 
         def get_files(self) -> None:
+            self.refresh_queue.get()
             self.meta_class.files_ar.clear() if not (self.meta_class.files_ar is None) else None
             self.meta_class.files_ar = api.get_all_files()
             self.meta_class.files.clear()
@@ -211,6 +219,7 @@ class MainUI(QMainWindow):
                 wid.setCheckState(0, Qt.CheckState.Unchecked)
                 items.append(wid)
             self.meta_class.files.addTopLevelItems(items)
+            self.refresh_queue.task_done()
 
 
 # Main Variables
