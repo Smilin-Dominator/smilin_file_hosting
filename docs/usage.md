@@ -20,20 +20,20 @@ send requests to the server again.
 This guide assumes that you've performed all the actions mentioned in the installation page.
 
 ### First Time Setup
-As soon as you run the client for the first time, you should see a screen with a section on the left, and the rest of the
-area blank. (See [Credentials](#credentials))
+Upon first launch, you'll see a window called [credentials](#credentials-window).
 
-First, enter data into the `link` and `email` fields respectively. Afterwards, hit 'register'. If the URL was valid,
-it'll override the username field with your Token (Write this down or save it somewhere, as this is the only way
-to access your data), but if the URL wasn't valid, there'll be no change.
+If it's your absolute first time setting up the client; Enter the `link` into the link field and hit
+register. If the link is valid, the `token` field should be filled with a random token.<br>
+Otherwise, just enter the link into the `link` field and your token into the `token` field, without hitting register.
 
-Afterwards, press connect. If the connection succeeds, you'll see the rest of the elements of the program appear, if not,
-check if the link and username are correct.
+After entering the `token` and the `link`, enter the email bound to your GPG Key into the `email` field.
 
-Note that your credentials are saved in a file called `config.json` in the credentials directory of client. Each time you
-open the program after the first time, your credentials will autoload for you. If you put different credentials and
-press 'connect', it'll override the previous credentials and autoload those next time.
+In the advanced features section, input the maximum number of concurrent uploads and downloads that
+can take place parallely. I've found that 4 is the perfect balance for me, but you can change it. I've limited the
+numbers to 10, for obvious reasons, but you can always override it by editing the JSON file manually.
 
+And finally, click 'Save and Connect'. If the connection succeeds, you will be transferred to the Main UI. Then,
+you can refer to the following section.
     
 ### The Main Program
 
