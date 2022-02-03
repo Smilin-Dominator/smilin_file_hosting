@@ -19,9 +19,8 @@
 from time import time
 from json import loads, dumps
 from pathlib import Path
-from queue import Queue
 from sys import argv
-from threading import Thread
+from threading import Thread, Lock
 from concurrent.futures import ThreadPoolExecutor
 
 from PyQt6 import uic
@@ -170,6 +169,7 @@ class MainUI(QMainWindow):
         # Declaration
         self.files: QTreeWidget = None
         self.files_ar: list[dict] = None
+        self.refresh_lock = Lock()
 
         self.status_bar: QLabel = None
         self.downloading_files_status: QListWidget = QListWidget()
@@ -200,9 +200,16 @@ class MainUI(QMainWindow):
         """
         Checks if the refresh queue is full. If it's not, it starts a new thread to start refreshing
         """
-        if not self.ops.refresh_queue.full():
-            self.ops.refresh_queue.put(None)
-            Thread(target=self.ops.get_files).start()
+
+        def refresh():
+            self.refresh_lock.acquire()
+            t = Thread(target=self.ops.get_files)
+            t.start()
+            t.join()
+            self.refresh_lock.release()
+
+        if not self.refresh_lock.locked():
+            Thread(target=refresh).start()
 
     def change_credentials(self) -> None:
         """
@@ -217,36 +224,49 @@ class MainUI(QMainWindow):
         This gets filenames from the file-opening dialog, adds them to the upload queue and starts new Threads to
          upload each file.
         """
+        def do_upload():
+            with ThreadPoolExecutor(max_workers=4) as exe:
+                exe.map(self.ops.upload_file, files)
+
         files = self.file_opener.getOpenFileNames()[0]
-        for file in files:
-            self.ops.upload_queue.put(file)
-            Thread(target=self.ops.upload_file).start()
+        Thread(name="Feed_Upload", target=do_upload).start()
 
     def download_files(self):
         """
         This gets all the Checked Items, adds them to the download queue and starts new Threads to download
         each file.
         """
-        it = QTreeWidgetItemIterator(self.files, QTreeWidgetItemIterator.IteratorFlag.Checked)
-        while it.value():
-            item = it.value()
+        def do_download():
+            it = QTreeWidgetItemIterator(self.files, QTreeWidgetItemIterator.IteratorFlag.Checked)
+            fns: list[str] = []
+            ids: list[int] = []
+            while it.value():
+                item = it.value()
             filename = item.text(0)
             id = self.ops.get_id(filename)
-            self.ops.download_queue.put((id, filename))
-            Thread(target=self.ops.download_file).start()
+            fns.append(filename)
+            ids.append(id)
             it += 1
+            with ThreadPoolExecutor(max_workers=4) as exe:
+                exe.map(self.ops.download_file, ids, fns)
+
+        Thread(name="Feed_Download", target=do_download).start()
 
     def delete_files(self):
         """
         This gets all the checked items, adds them to the delete queue and starts new Threads to delete each file.
         """
-        it = QTreeWidgetItemIterator(self.files, QTreeWidgetItemIterator.IteratorFlag.Checked)
-        while it.value():
-            item = it.value()
-            id = self.ops.get_id(item.text(0))
-            self.ops.delete_queue.put(id)
-            Thread(target=self.ops.delete_file).start()
-            it += 1
+        def do_delete():
+            it = QTreeWidgetItemIterator(self.files, QTreeWidgetItemIterator.IteratorFlag.Checked)
+            ids = []
+            while it.value():
+                item = it.value()
+                ids.append(self.ops.get_id(item.text(0)))
+                it += 1
+            with ThreadPoolExecutor(max_workers=4) as exe:
+                exe.map(self.ops.delete_file, ids)
+
+        Thread(name="Feed_Delete", target=do_delete).start()
 
     class ConnectorFunctions(object):
         """
@@ -264,10 +284,6 @@ class MainUI(QMainWindow):
             :param meta_class: The instance of the parent class
             """
             self.meta_class = meta_class
-            self.upload_queue = Queue(maxsize=5)
-            self.download_queue = Queue(maxsize=5)
-            self.delete_queue = Queue(maxsize=0)
-            self.refresh_queue = Queue(maxsize=1)
 
         def get_id(self, filename: str) -> int:
             """
@@ -289,40 +305,34 @@ class MainUI(QMainWindow):
             """
             return Path(path).name
 
-        def delete_file(self) -> None:
+        def delete_file(self, id: int) -> None:
             """ This gets an ID of a File from the queue and deletes it """
-            id: int = self.delete_queue.get()
             api.delete_file(id)
             self.meta_class.list_items()
-            self.delete_queue.task_done()
 
-        def upload_file(self) -> None:
+        def upload_file(self, filename: str) -> None:
             """
             This gets a path to a file from the queue, adds the filename to the uploading_files status,
             uploads it and refreshes the file list.
             """
-            filename: str = self.upload_queue.get()
             file_widget = QListWidgetItem(self.get_filename(filename))
             self.meta_class.uploading_files_status.addItem(file_widget)
             print("Uploading File '{}' !".format(filename))
             api.upload_file(filename)
             print("Finished Uploading File '{}' !".format(filename))
-            self.upload_queue.task_done()
             self.meta_class.list_items()
             self.meta_class.uploading_files_status.takeItem(self.meta_class.uploading_files_status.row(file_widget))
 
-        def download_file(self) -> None:
+        def download_file(self, file_id: int, filename: str) -> None:
             """
             This gets an ID and a Filename from the queue, adds the filename to the download_files status and
             downloads the file
             """
-            file_id, filename = self.download_queue.get()
             file_widget = QListWidgetItem(self.get_filename(filename))
             self.meta_class.downloading_files_status.addItem(file_widget)
             print("Downloading File '{}' !".format(filename))
             api.download_file(file_id, filename)
             print("Finished Downloading File '{}' !".format(filename))
-            self.download_queue.task_done()
             self.meta_class.downloading_files_status.takeItem(self.meta_class.downloading_files_status.row(file_widget))
 
         def get_files(self) -> None:
@@ -336,7 +346,6 @@ class MainUI(QMainWindow):
                 wid.setCheckState(0, Qt.CheckState.Unchecked)
                 self.meta_class.files.addTopLevelItem(wid)
 
-            self.refresh_queue.get()
             self.meta_class.files_ar.clear() if not (self.meta_class.files_ar is None) else None
             self.meta_class.files_ar = api.get_all_files()
             self.meta_class.files.clear()
@@ -345,7 +354,6 @@ class MainUI(QMainWindow):
             with ThreadPoolExecutor(max_workers=4) as exe:
                 exe.map(insert_element, self.meta_class.files_ar)
             print("Took '{}' Seconds To Decrypt All Elements!".format(time() - t))
-            self.refresh_queue.task_done()
 
 
 # Main Variables
