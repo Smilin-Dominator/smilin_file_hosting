@@ -153,6 +153,8 @@ class CredentialsUI(QMainWindow):
                     self.credentials_status.setText("Connection Failed!")
                     return False
                 crypto.setup_gpg(js["email"])
+                main_window.MAX_CONCURRENT_UPLOADS = js["advanced"]["concurrent_uploads"]
+                main_window.MAX_CONCURRENT_DOWNLOADS = js["advanced"]["concurrent_downloads"]
                 main_window.show()
                 main_window.list_items()
                 return True
@@ -176,6 +178,9 @@ class MainUI(QMainWindow):
         """
 
         # Declaration
+        self.MAX_CONCURRENT_DOWNLOADS = 1
+        self.MAX_CONCURRENT_UPLOADS = 1
+
         self.files: QTreeWidget = None
         self.files_ar: list[dict] = None
         self.refresh_lock = Lock()
@@ -234,7 +239,7 @@ class MainUI(QMainWindow):
          upload each file.
         """
         def do_upload():
-            with ThreadPoolExecutor(max_workers=4) as exe:
+            with ThreadPoolExecutor(max_workers=self.MAX_CONCURRENT_UPLOADS) as exe:
                 exe.map(self.ops.upload_file, files)
 
         files = self.file_opener.getOpenFileNames()[0]
@@ -254,7 +259,7 @@ class MainUI(QMainWindow):
                 id = self.ops.get_id(filename)
                 fs.append((id, filename))
                 it += 1
-            with ThreadPoolExecutor(max_workers=4) as exe:
+            with ThreadPoolExecutor(max_workers=self.MAX_CONCURRENT_DOWNLOADS) as exe:
                 exe.map(self.ops.download_file, fs)
 
         Thread(name="Feed_Download", target=do_download).start()
