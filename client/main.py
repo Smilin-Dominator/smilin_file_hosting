@@ -304,7 +304,11 @@ class MainUI(QMainWindow):
             return Path(path).name
 
         def delete_file(self, id: int) -> None:
-            """ This gets an ID of a File from the queue and deletes it """
+            """
+            This gets an ID of a File from the queue and deletes it
+
+             :param id: The ID of the File
+             """
             api.delete_file(id)
             self.meta_class.list_items()
 
@@ -312,6 +316,8 @@ class MainUI(QMainWindow):
             """
             This gets a path to a file from the queue, adds the filename to the uploading_files status,
             uploads it and refreshes the file list.
+
+            :param filename: The absolute path to the file
             """
             file_widget = QListWidgetItem(self.get_filename(filename))
             self.meta_class.uploading_files_status.addItem(file_widget)
@@ -321,10 +327,12 @@ class MainUI(QMainWindow):
             self.meta_class.list_items()
             self.meta_class.uploading_files_status.takeItem(self.meta_class.uploading_files_status.row(file_widget))
 
-        def download_file(self, container: tuple) -> None:
+        def download_file(self, container: tuple[int, str]) -> None:
             """
             This gets an ID and a Filename from the queue, adds the filename to the download_files status and
             downloads the file
+
+            :param container: A Tuple that contains an ID and a Filename
             """
             file_id, filename = container
             file_widget = QListWidgetItem(self.get_filename(filename))
