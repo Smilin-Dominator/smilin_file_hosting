@@ -67,6 +67,11 @@ class CredentialsUI(QMainWindow):
         self.register_button.clicked.connect(self.credentials_register)
 
     def safe_show(self):
+        """
+        This parses the credential file and looks for the options. If the file doens't exist, this does
+        not happen, but if it does exist, it'll write the values in the config file to the respective
+        input in this window.
+        """
         config_file = Path("credentials/config.json")
         if config_file.exists():
             js: dict = loads(open(config_file, "r").read())
@@ -81,6 +86,7 @@ class CredentialsUI(QMainWindow):
     def get_options(self) -> dict:
         """
         This parses the entry fields and returns a dictionary object
+
         :return: The credentials in a JSON format
         """
         return {
