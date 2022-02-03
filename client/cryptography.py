@@ -16,12 +16,10 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-from time import time_ns
 from pathlib import Path
-from rsa import newkeys, PrivateKey, PublicKey, encrypt, decrypt
-from binascii import hexlify, unhexlify
-from gnupg import GPG
 from shutil import which
+from time import time_ns
+from gnupg import GPG
 
 
 class Crypto:
