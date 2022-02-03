@@ -24,8 +24,19 @@ from cryptography import Crypto
 
 
 class API:
+    """
+    This class is the bridge between the Main User Interface, Cryptography and the Server.
+    This handles all the server interaction, such as Uploading, Downloading and Deleting.
+    """
 
     def __init__(self, server: str, username: str, crypto: Crypto):
+        """
+        The constructor accepts a Server (URL), a username and an instance of the Crypto class
+
+        :param server: The URL to the Server
+        :param username: The username/token obtained from registering
+        :param crypto: An instance of the Crypto class
+        """
         self.server = server
         self.username = username
         self.base_url = furl(server)
@@ -35,6 +46,11 @@ class API:
         self.temp = Path("temp")
 
     def test_connection(self) -> bool:
+        """
+        This tests the connection and returns False if it can't connect, and true if it can.
+
+        :return: Whether it connected or not
+        """
         try:
             req = get(self.base_url.tostr())
             if (req.status_code == 404) or (req.content == b"false"):
@@ -48,19 +64,40 @@ class API:
             return False
 
     def set_username(self, user: str):
+        """
+        A simple setter function to set the username
+
+        :param user: The Username/Token
+        """
         self.username = user
 
     def set_url(self, url: str):
+        """
+        This takes a string URL and converts it into a 'furl' object and appends the username to it
+
+        :param url: The link as a string
+        """
         self.base_url = furl(url)
         self.base_url.path.segments = [self.username]
 
     def get_all_files(self) -> list[dict]:
+        """
+        This connects to the server '/list' and returns the list of files
+
+        :return: Files as a list of dictionaries
+        """
         url = deepcopy(self.base_url)
         url.path.segments.append("list")
         the_array = get(url.tostr()).json()
         return the_array
 
     def register(self, link: str) -> str:
+        """
+        This connects to the server and gets you a registration token
+
+        :param link: The URL to connect to
+        :return: The token obtained from registering
+        """
         url = furl(link)
         url.path.segments.append("register")
         req: str = post(url.tostr()).json()
@@ -69,6 +106,13 @@ class API:
         return req
 
     def download_file(self, id: int, filename: str):
+        """
+        This accepts a filename and an id and downloads the file. It sends a request with the ID,
+        saves the raw downloaded file as a GPG file (in temp), decrypts it and saves it to 'files/'
+
+        :param id: The ID of the file
+        :param filename: The decrypted filename
+        """
         url = deepcopy(self.base_url)
         url.path.segments.append("download")
         if not self.files.exists():
@@ -84,6 +128,11 @@ class API:
             print("No Such File!")
 
     def delete_file(self, id: int):
+        """
+        This launches a delete request to the server with the ID of the file
+
+        :param id: The ID of the File to delete
+        """
         url = deepcopy(self.base_url)
         url.path.segments.append("delete")
         file = delete(url.tostr(), params={"id": id})
@@ -93,6 +142,11 @@ class API:
             print("Didn't Work!")
 
     def upload_file(self, filename: str):
+        """
+        THis takes a file, encrypts it and it's filename and uploads it
+
+        :param filename: The absolute path to the file
+        """
         url = deepcopy(self.base_url)
         url.path.segments.append("upload")
         path_to_file = Path(filename)
