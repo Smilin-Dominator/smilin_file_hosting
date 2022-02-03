@@ -66,7 +66,11 @@ class CredentialsUI(QMainWindow):
         self.connect_button.clicked.connect(self.credentials_connect)
         self.register_button.clicked.connect(self.credentials_register)
 
-    def get_options(self):
+    def get_options(self) -> dict:
+        """
+        This parses the entry fields and returns a dictionary object
+        :return: The credentials in a JSON format
+        """
         return {
             "token": self.token_input.text(),
             "link": self.link_input.text(),
@@ -84,12 +88,13 @@ class CredentialsUI(QMainWindow):
         - If they are, it writes to the file ('credentials/config.json').
         - If they aren't, it sets the status to "Not Enough Arguments!"
         """
-        text = [self.token_input.text(), self.link_input.text(), self.email_input.text()]
+        get = self.get_options()
+        text = [get["token"], get["link"], get["email"]]
         check = [i for i in text if i != ""]
         if len(check) != 3:
             self.credentials_status.setText("Not Enough Arguments!")
         else:
-            self.write_file(*text)
+            self.write_file(get)
 
     def credentials_register(self) -> None:
         """
@@ -105,35 +110,28 @@ class CredentialsUI(QMainWindow):
             self.credentials_status.setText("Successfully Registered!")
             self.token_input.setText(token)
 
-    def write_file(self, token: str, link: str, email: str) -> None:
+    def write_file(self, options: dict) -> None:
         """
         This accepts the credential parameters and writes to the file
 
-        :param token: The Unique UUID Obtained from Registering or an Old One
-        :param link: The link to the server
-        :param email: Email for the GPG Key
+        :param options: A dictionary in the format returned by `self.get_options()`
 
         If the connection fails, it'll re-display the credentials dialog. Otherwise, it'll setup the API and launch
         the main user interface.
         """
         global main_window, api
-        out = {
-            "token": token,
-            "link": link,
-            "email": email
-        }
         creds = Path("credentials")
         creds.mkdir() if not creds.exists() else None
         with open("credentials/config.json", "w") as w:
-            w.write(dumps(out, indent=4))
+            w.write(dumps(options, indent=4))
             w.flush()
             w.close()
-        api = API(server=link, username=token, crypto=crypto)
+        api = API(server=options["link"], username=options["username"], crypto=crypto)
         if not api.test_connection():
             self.credentials_status.setText("Connection Failed!")
             self.show()
         else:
-            crypto.setup_gpg(email)
+            crypto.setup_gpg(options["email"])
             self.close()
             main_window.show()
             main_window.list_items()
