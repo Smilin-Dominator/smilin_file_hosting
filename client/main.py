@@ -238,17 +238,15 @@ class MainUI(QMainWindow):
         """
         def do_download():
             it = QTreeWidgetItemIterator(self.files, QTreeWidgetItemIterator.IteratorFlag.Checked)
-            fns: list[str] = []
-            ids: list[int] = []
+            fs: list[tuple[int, str]] = []
             while it.value():
                 item = it.value()
-            filename = item.text(0)
-            id = self.ops.get_id(filename)
-            fns.append(filename)
-            ids.append(id)
-            it += 1
+                filename = item.text(0)
+                id = self.ops.get_id(filename)
+                fs.append((id, filename))
+                it += 1
             with ThreadPoolExecutor(max_workers=4) as exe:
-                exe.map(self.ops.download_file, ids, fns)
+                exe.map(self.ops.download_file, fs)
 
         Thread(name="Feed_Download", target=do_download).start()
 
@@ -323,11 +321,12 @@ class MainUI(QMainWindow):
             self.meta_class.list_items()
             self.meta_class.uploading_files_status.takeItem(self.meta_class.uploading_files_status.row(file_widget))
 
-        def download_file(self, file_id: int, filename: str) -> None:
+        def download_file(self, container: tuple) -> None:
             """
             This gets an ID and a Filename from the queue, adds the filename to the download_files status and
             downloads the file
             """
+            file_id, filename = container
             file_widget = QListWidgetItem(self.get_filename(filename))
             self.meta_class.downloading_files_status.addItem(file_widget)
             print("Downloading File '{}' !".format(filename))
