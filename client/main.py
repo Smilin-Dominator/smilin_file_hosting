@@ -66,6 +66,18 @@ class CredentialsUI(QMainWindow):
         self.connect_button.clicked.connect(self.credentials_connect)
         self.register_button.clicked.connect(self.credentials_register)
 
+    def safe_show(self):
+        config_file = Path("credentials/config.json")
+        if config_file.exists():
+            js: dict = loads(open(config_file, "r").read())
+            self.token_input.setText(js.get("token"))
+            self.link_input.setText(js.get("link"))
+            self.email_input.setText(js.get("email"))
+            if js.get("advanced") is not None:
+                self.concurrent_downloads.setValue(js.get("advanced").get("concurrent_downloads"))
+                self.concurrent_uploads.setValue(js.get("advanced").get("concurrent_uploads"))
+        self.show()
+
     def get_options(self) -> dict:
         """
         This parses the entry fields and returns a dictionary object
@@ -231,7 +243,7 @@ class MainUI(QMainWindow):
         window as it gets re-opened when you write the credentials.
         """
         self.close()
-        credentials_window.show()
+        credentials_window.safe_show()
 
     def upload_file(self) -> None:
         """
@@ -389,5 +401,5 @@ main_window = MainUI()
 if __name__ == "__main__":
     options = credentials_window.read_file()
     if not options:
-        credentials_window.show()
+        credentials_window.safe_show()
     app.exec()
