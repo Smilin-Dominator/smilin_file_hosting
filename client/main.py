@@ -115,12 +115,11 @@ class CredentialsUI(QMainWindow):
             w.write(dumps(out, indent=4))
             w.flush()
             w.close()
-        api = API(server=link, username=token, email=email)
+        api = API(server=link, username=token, crypto=crypto)
         if not api.test_connection():
             self.credentials_status.setText("Connection Failed!")
             self.show()
         else:
-            api.setup_crypto(email)
             crypto.setup_gpg(email)
             self.close()
             main_window.show()
@@ -138,11 +137,10 @@ class CredentialsUI(QMainWindow):
         try:
             with open("credentials/config.json", "r") as r:
                 js = loads(r.read())
-                api = API(server=js["link"], username=js["token"], email=js["email"])
+                api = API(server=js["link"], username=js["token"], crypto=crypto)
                 if not api.test_connection():
                     self.credentials_status.setText("Connection Failed!")
                     return False
-                api.setup_crypto(js["email"])
                 crypto.setup_gpg(js["email"])
                 main_window.show()
                 main_window.list_items()
@@ -365,8 +363,8 @@ class MainUI(QMainWindow):
 
 # Main Variables
 
-api = API("", "", "")
 crypto = Crypto()
+api = API("", "", crypto)
 app = QApplication(argv)
 
 credentials_window = CredentialsUI()

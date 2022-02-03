@@ -21,22 +21,18 @@ from pathlib import Path
 from furl import furl
 from requests import get, post, delete, ConnectionError
 from cryptography import Crypto
-from queue import Queue
 
 
 class API:
 
-    def __init__(self, server: str, username: str, email: str):
+    def __init__(self, server: str, username: str, crypto: Crypto):
         self.server = server
         self.username = username
         self.base_url = furl(server)
         self.base_url.path.segments = [username]
-        self.crypto = Crypto()
+        self.crypto = crypto
         self.files = Path("files")
         self.temp = Path("temp")
-
-    def setup_crypto(self, email: str):
-        self.crypto.setup_gpg(email)
 
     def test_connection(self) -> bool:
         try:
