@@ -20,6 +20,7 @@ from pathlib import Path
 from shutil import which
 from time import time_ns
 from gnupg import GPG
+from platform import system
 
 
 class Crypto:
@@ -38,7 +39,13 @@ class Crypto:
 
         :param email: The Email attached to the user's key
         """
-        self.gpg = GPG(gpgbinary=which("gpg"), gnupghome=str(Path(Path.home(), "AppData", "Roaming", "gnupg")))
+        gpg_home = ""
+        match system():
+            case "Windows":
+                gpg_home = str(Path(Path.home(), "AppData", "Roaming", "gnupg"))
+            case _:
+                gpg_home = str(Path(Path.home(), ".gnupg"))
+        self.gpg = GPG(gpgbinary=which("gpg"), gnupghome=gpg_home)
         self.email = email
 
     def decrypt_string(self, string: bytes) -> str:
