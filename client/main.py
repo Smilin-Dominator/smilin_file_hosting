@@ -27,7 +27,7 @@ from PyQt6 import uic
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QApplication, QLineEdit, QPushButton, QLabel, QMainWindow, QListWidgetItem, QFileDialog,
-    QListWidget, QTreeWidget, QTreeWidgetItem, QTreeWidgetItemIterator
+    QListWidget, QTreeWidget, QTreeWidgetItem, QTreeWidgetItemIterator, QSpinBox
 )
 
 from connector import API
@@ -54,6 +54,8 @@ class CredentialsUI(QMainWindow):
         self.register_button: QPushButton = None
         self.connect_button: QPushButton = None
         self.credentials_status: QLabel = None
+        self.concurrent_downloads: QSpinBox = None
+        self.concurrent_uploads: QSpinBox = None
 
         # Initial
         super(CredentialsUI, self).__init__()
@@ -63,6 +65,17 @@ class CredentialsUI(QMainWindow):
         # Post Initial
         self.connect_button.clicked.connect(self.credentials_connect)
         self.register_button.clicked.connect(self.credentials_register)
+
+    def get_options(self):
+        return {
+            "token": self.token_input.text(),
+            "link": self.link_input.text(),
+            "email": self.email_input.text(),
+            "advanced": {
+                "concurrent_downloads": self.concurrent_downloads.value(),
+                "concurrent_uploads": self.concurrent_uploads.value()
+            }
+        }
 
     def credentials_connect(self) -> None:
         """
