@@ -37,39 +37,60 @@ press 'connect', it'll override the previous credentials and autoload those next
     
 ### The Main Program
 
-#### Credentials
+#### Credentials Window
+You will get this screen if;
 
-This section displays 3 Entry Fields and One Button;
+* It's the first time launching the program.
+* The connection to the server failed.
+* The token is invalid.
 
-* `Name (Entry)`  **->** Username that you use to connect to the server.
-* `Link (Entry)`  **->** URL to the server hosting the service, with the Port (:2356) at the End.
-* `Email (Entry)` **->** The email that's attached to your GPG Key (The one you set in the installation page)
-* `Connect (Button)` **->** This will save the credentials to the configuration file and connect to the server.
-* `Register (Button)` **->** If you've entered a link, this will connect to the link and generate+register a Token/Username for you.
+In the first container (labeled "Credentials"), you'll see 3 Input fields;
 
-???+ "The Importance Of Tokens"
-    Remember! If you lose your token, you lose your files.
+| Element | Type  |                           Function                           |
+|:-------:|:-----:|:------------------------------------------------------------:|
+|  Token  | Entry | This is the unique username you use to connect to the server |
+|  Link   | Entry |                This is the link to the server                |
+|  Email  | Entry |          This is the email attached to your GPG Key          |
+
+In the second container (labeled "Advanced Features"), you'll see 2 Number Input Boxes (SpinBoxes);
+
+|       Element        |  Type   |                         Function                          |
+|:--------------------:|:-------:|:---------------------------------------------------------:|
+| Concurrent Downloads | SpinBox | The maximum amount of download threads to run in parallel |
+|  Concurrent Uploads  | SpinBox |  The maximum amount of upload threads to run in parallel  |
 
 
-#### Files
+In the third container (labeled "Operations"), you'll see 2 Buttons and 1 Label;
 
-This section displays a list of decrypted filenames along with buttons to download and delete them.
+|     Element      |  Type  |                                                          Function                                                           |
+|:----------------:|:------:|:---------------------------------------------------------------------------------------------------------------------------:|
+|     Register     | Button |                      If the link isn't empty, this will try and connect to the server and register you                      |
+|      Status      | Label  |                       This invisible label will display the status; Such as connection errors and all                       |
+| Save and Connect | Button | This will overwrite the options in 'credentials/config.json' with the new credentials you entered and connect to the server |
 
-* If you press download, it downloads and decrypts the file into a folder in the client directory called 'files'
-* If you press delete, it deletes the file from the database and from the server's folder
 
-#### Status
+#### Main Window
+In the left-most container (labeled "Status"), there are 2 more containers and 1 label:
 
-* Upload (Button)
+|      Element      |    Type    |                               Function                                |
+|:-----------------:|:----------:|:---------------------------------------------------------------------:|
+|  Uploading Files  | ListWidget |       This will display the files that are currently uploading        |
+|      Status       |   Label    | This invisible status will show the status; Such as connection errors |
+| Downloading Files | ListWidget |      This will display the files that are currently downloading       |
 
-    > This will open a file(s) selection dialog. Select as many files as you like and then submit. After you do,
-    > it'll encrypt the files and their filenames and upload them. 
+In the top-right container (labeled "Files"), there's a TreeWidget:
 
-* Uploading (Frame)
+| Element |    Type     |                              Function                              |
+|:-------:|:-----------:|:------------------------------------------------------------------:|
+|  Files  | Tree Widget | Displays the files with a checkbox to the left of them (see below) |
 
-    > This displays the files that are currently being uploaded
 
-* Downloading (Frame)
+In the bottom container (labeled "Operations"), there are 5 Buttons:
 
-    > This displays the files that are currently being downloaded
-
+|      Element      | Type   |                                Function                                |
+|:-----------------:|--------|:----------------------------------------------------------------------:|
+| Download Selected | Button |                    Downloads the files you selected                    |
+|  Delete Selected  | Button |                     Deletes the files you selected                     |
+|      Refresh      | Button |                         Refreshes the file list                        |
+|    Upload File    | Button | This opens a file dialog for you to select as many files as you'd like |
+|    Credentials    | Button |                    This opens the credentials window                   |
