@@ -44,6 +44,8 @@ def get_table(username: str):
 
 @app.on_event("startup")
 async def startup():
+    if not files_path.exists():
+        files_path.mkdir()
     await database.connect()
     if not engine.dialect.has_table(connection=engine.connect(), table_name="users"):
         await database.execute("""

@@ -1,0 +1,13 @@
+name: smilin_file_hosting_client
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10.2
+  - requests
+  - furl
+  - rsa
+  - python-gnupg
+  - pip
+  - pip:
+      - PyQt6

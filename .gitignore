@@ -46,6 +46,7 @@ venv/
 # Misc
 !client/requirements.txt
 !server/requirements.txt
+!client/environment.yml
 !*\docker-compose.yml
 
 # Docker Data
