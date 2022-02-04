@@ -21,6 +21,24 @@ the UUID to the client (so you can connect). If you lose the UUID, you won't be 
 ### Features
 - UUID Based Authentication
 - Switched Database to MariaDB
-- 
 ### Fixes
 - \#1 -> Folder Name and Database Name could Differ
+
+
+## v1.2
+This is the second major update; I switched the GUI Framework from Python's TKinter to a much more powerful
+PyQt Library, and took the time to design the UIs in Qt Studio and import them at runtime, which makes it easier
+to program and improves the result. 
+Instead of tucking the credentials section to the right of the main UI, I made a separate window for it, and added a 
+few more choices! 
+I moved from using a frame for the files to using a TreeWidget, which has Checkboxes and as a result, added new methods
+to download and delete the selected files. I also improved the Concurrency features in this release; Using methods like
+ThreadPoolExecutors and Locks.
+
+### Features
+- New Redesigned User Interface written using the PyQt Library
+- Files are now selectable (making Bulk Downloads and Deletes Possible)
+- Credentials and the Main UI are in separate windows
+- Added an option to specify the maximum amount of concurrent downloads and uploads.
+### Fixes
+- \#2 -> Error When Decrypting
