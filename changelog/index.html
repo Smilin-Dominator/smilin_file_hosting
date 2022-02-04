@@ -305,6 +305,33 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#v12" class="md-nav__link">
+    v1.2
+  </a>
+  
+    <nav class="md-nav" aria-label="v1.2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#features_2" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixes_2" class="md-nav__link">
+    Fixes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -370,11 +397,30 @@ the UUID to the client (so you can connect). If you lose the UUID, you won't be 
 <ul>
 <li>UUID Based Authentication</li>
 <li>Switched Database to MariaDB</li>
-<li></li>
 </ul>
 <h3 id="fixes_1">Fixes<a class="headerlink" href="#fixes_1" title="Permanent link">#</a></h3>
 <ul>
 <li>#1 -&gt; Folder Name and Database Name could Differ</li>
+</ul>
+<h2 id="v12">v1.2<a class="headerlink" href="#v12" title="Permanent link">#</a></h2>
+<p>This is the second major update; I switched the GUI Framework from Python's TKinter to a much more powerful
+PyQt Library, and took the time to design the UIs in Qt Studio and import them at runtime, which makes it easier
+to program and improves the result. 
+Instead of tucking the credentials section to the right of the main UI, I made a separate window for it, and added a 
+few more choices! 
+I moved from using a frame for the files to using a TreeWidget, which has Checkboxes and as a result, added new methods
+to download and delete the selected files. I also improved the Concurrency features in this release; Using methods like
+ThreadPoolExecutors and Locks.</p>
+<h3 id="features_2">Features<a class="headerlink" href="#features_2" title="Permanent link">#</a></h3>
+<ul>
+<li>New Redesigned User Interface written using the PyQt Library</li>
+<li>Files are now selectable (making Bulk Downloads and Deletes Possible)</li>
+<li>Credentials and the Main UI are in separate windows</li>
+<li>Added an option to specify the maximum amount of concurrent downloads and uploads.</li>
+</ul>
+<h3 id="fixes_2">Fixes<a class="headerlink" href="#fixes_2" title="Permanent link">#</a></h3>
+<ul>
+<li>#2 -&gt; Error When Decrypting</li>
 </ul>
 
               

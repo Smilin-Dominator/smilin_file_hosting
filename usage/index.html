@@ -297,22 +297,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#credentials" class="md-nav__link">
-    Credentials
+  <a href="#credentials-window" class="md-nav__link">
+    Credentials Window
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#files" class="md-nav__link">
-    Files
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#status" class="md-nav__link">
-    Status
+  <a href="#main-window" class="md-nav__link">
+    Main Window
   </a>
   
 </li>
@@ -369,58 +362,182 @@ send requests to the server again.</p>
 <h2 id="client">Client<a class="headerlink" href="#client" title="Permanent link">#</a></h2>
 <p>This guide assumes that you've performed all the actions mentioned in the installation page.</p>
 <h3 id="first-time-setup">First Time Setup<a class="headerlink" href="#first-time-setup" title="Permanent link">#</a></h3>
-<p>As soon as you run the client for the first time, you should see a screen with a section on the left, and the rest of the
-area blank. (See <a href="#credentials">Credentials</a>)</p>
-<p>First, enter data into the <code>link</code> and <code>email</code> fields respectively. Afterwards, hit 'register'. If the URL was valid,
-it'll override the username field with your Token (Write this down or save it somewhere, as this is the only way
-to access your data), but if the URL wasn't valid, there'll be no change.</p>
-<p>Afterwards, press connect. If the connection succeeds, you'll see the rest of the elements of the program appear, if not,
-check if the link and username are correct.</p>
-<p>Note that your credentials are saved in a file called <code>config.json</code> in the credentials directory of client. Each time you
-open the program after the first time, your credentials will autoload for you. If you put different credentials and
-press 'connect', it'll override the previous credentials and autoload those next time.</p>
+<p>Upon first launch, you'll see a window called <a href="#credentials-window">credentials</a>.</p>
+<p>If it's your absolute first time setting up the client; Enter the <code>link</code> into the link field and hit
+register. If the link is valid, the <code>token</code> field should be filled with a random token.<br>
+Otherwise, just enter the link into the <code>link</code> field and your token into the <code>token</code> field, without hitting register.</p>
+<p>After entering the <code>token</code> and the <code>link</code>, enter the email bound to your GPG Key into the <code>email</code> field.</p>
+<p>In the advanced features section, input the maximum number of concurrent uploads and downloads that
+can take place parallely. I've found that 4 is the perfect balance for me, but you can change it. I've limited the
+numbers to 10, for obvious reasons, but you can always override it by editing the JSON file manually.</p>
+<p>And finally, click 'Save and Connect'. If the connection succeeds, you will be transferred to the Main UI. Then,
+you can refer to the following section.</p>
 <h3 id="the-main-program">The Main Program<a class="headerlink" href="#the-main-program" title="Permanent link">#</a></h3>
-<h4 id="credentials">Credentials<a class="headerlink" href="#credentials" title="Permanent link">#</a></h4>
-<p>This section displays 3 Entry Fields and One Button;</p>
+<h4 id="credentials-window">Credentials Window<a class="headerlink" href="#credentials-window" title="Permanent link">#</a></h4>
+<p>You will get this screen if;</p>
 <ul>
-<li><code>Name (Entry)</code>  <strong>-&gt;</strong> Username that you use to connect to the server.</li>
-<li><code>Link (Entry)</code>  <strong>-&gt;</strong> URL to the server hosting the service, with the Port (:2356) at the End.</li>
-<li><code>Email (Entry)</code> <strong>-&gt;</strong> The email that's attached to your GPG Key (The one you set in the installation page)</li>
-<li><code>Connect (Button)</code> <strong>-&gt;</strong> This will save the credentials to the configuration file and connect to the server.</li>
-<li><code>Register (Button)</code> <strong>-&gt;</strong> If you've entered a link, this will connect to the link and generate+register a Token/Username for you.</li>
+<li>It's the first time launching the program.</li>
+<li>The connection to the server failed.</li>
+<li>The token is invalid.</li>
 </ul>
-<details open="open">
-<summary>The Importance Of Tokens</summary>
-<p>Remember! If you lose your token, you lose your files.</p>
-</details>
-<h4 id="files">Files<a class="headerlink" href="#files" title="Permanent link">#</a></h4>
-<p>This section displays a list of decrypted filenames along with buttons to download and delete them.</p>
-<ul>
-<li>If you press download, it downloads and decrypts the file into a folder in the client directory called 'files'</li>
-<li>If you press delete, it deletes the file from the database and from the server's folder</li>
-</ul>
-<h4 id="status">Status<a class="headerlink" href="#status" title="Permanent link">#</a></h4>
-<ul>
-<li>
-<p>Upload (Button)</p>
-<blockquote>
-<p>This will open a file(s) selection dialog. Select as many files as you like and then submit. After you do,
-it'll encrypt the files and their filenames and upload them. </p>
-</blockquote>
-</li>
-<li>
-<p>Uploading (Frame)</p>
-<blockquote>
-<p>This displays the files that are currently being uploaded</p>
-</blockquote>
-</li>
-<li>
-<p>Downloading (Frame)</p>
-<blockquote>
-<p>This displays the files that are currently being downloaded</p>
-</blockquote>
-</li>
-</ul>
+<p>In the first container (labeled "Credentials"), you'll see 3 Input fields;</p>
+<table>
+<thead>
+<tr>
+<th align="center">Element</th>
+<th align="center">Type</th>
+<th align="center">Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">Token</td>
+<td align="center">Entry</td>
+<td align="center">This is the unique username you use to connect to the server</td>
+</tr>
+<tr>
+<td align="center">Link</td>
+<td align="center">Entry</td>
+<td align="center">This is the link to the server</td>
+</tr>
+<tr>
+<td align="center">Email</td>
+<td align="center">Entry</td>
+<td align="center">This is the email attached to your GPG Key</td>
+</tr>
+</tbody>
+</table>
+<p>In the second container (labeled "Advanced Features"), you'll see 2 Number Input Boxes (SpinBoxes);</p>
+<table>
+<thead>
+<tr>
+<th align="center">Element</th>
+<th align="center">Type</th>
+<th align="center">Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">Concurrent Downloads</td>
+<td align="center">SpinBox</td>
+<td align="center">The maximum amount of download threads to run in parallel</td>
+</tr>
+<tr>
+<td align="center">Concurrent Uploads</td>
+<td align="center">SpinBox</td>
+<td align="center">The maximum amount of upload threads to run in parallel</td>
+</tr>
+</tbody>
+</table>
+<p>In the third container (labeled "Operations"), you'll see 2 Buttons and 1 Label;</p>
+<table>
+<thead>
+<tr>
+<th align="center">Element</th>
+<th align="center">Type</th>
+<th align="center">Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">Register</td>
+<td align="center">Button</td>
+<td align="center">If the link isn't empty, this will try and connect to the server and register you</td>
+</tr>
+<tr>
+<td align="center">Status</td>
+<td align="center">Label</td>
+<td align="center">This invisible label will display the status; Such as connection errors and all</td>
+</tr>
+<tr>
+<td align="center">Save and Connect</td>
+<td align="center">Button</td>
+<td align="center">This will overwrite the options in 'credentials/config.json' with the new credentials you entered and connect to the server</td>
+</tr>
+</tbody>
+</table>
+<h4 id="main-window">Main Window<a class="headerlink" href="#main-window" title="Permanent link">#</a></h4>
+<p>In the left-most container (labeled "Status"), there are 2 more containers and 1 label:</p>
+<table>
+<thead>
+<tr>
+<th align="center">Element</th>
+<th align="center">Type</th>
+<th align="center">Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">Uploading Files</td>
+<td align="center">ListWidget</td>
+<td align="center">This will display the files that are currently uploading</td>
+</tr>
+<tr>
+<td align="center">Status</td>
+<td align="center">Label</td>
+<td align="center">This invisible status will show the status; Such as connection errors</td>
+</tr>
+<tr>
+<td align="center">Downloading Files</td>
+<td align="center">ListWidget</td>
+<td align="center">This will display the files that are currently downloading</td>
+</tr>
+</tbody>
+</table>
+<p>In the top-right container (labeled "Files"), there's a TreeWidget:</p>
+<table>
+<thead>
+<tr>
+<th align="center">Element</th>
+<th align="center">Type</th>
+<th align="center">Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">Files</td>
+<td align="center">Tree Widget</td>
+<td align="center">Displays the files with a checkbox to the left of them (see below)</td>
+</tr>
+</tbody>
+</table>
+<p>In the bottom container (labeled "Operations"), there are 5 Buttons:</p>
+<table>
+<thead>
+<tr>
+<th align="center">Element</th>
+<th>Type</th>
+<th align="center">Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center">Download Selected</td>
+<td>Button</td>
+<td align="center">Downloads the files you selected</td>
+</tr>
+<tr>
+<td align="center">Delete Selected</td>
+<td>Button</td>
+<td align="center">Deletes the files you selected</td>
+</tr>
+<tr>
+<td align="center">Refresh</td>
+<td>Button</td>
+<td align="center">Refreshes the file list</td>
+</tr>
+<tr>
+<td align="center">Upload File</td>
+<td>Button</td>
+<td align="center">This opens a file dialog for you to select as many files as you'd like</td>
+</tr>
+<tr>
+<td align="center">Credentials</td>
+<td>Button</td>
+<td align="center">This opens the credentials window</td>
+</tr>
+</tbody>
+</table>
 
               
             </article>

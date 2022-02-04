@@ -352,7 +352,7 @@ MariaDB Container contains a MariaDB Database with the user and password specifi
 <h3 id="client">Client<a class="headerlink" href="#client" title="Permanent link">#</a></h3>
 <p>To run the client, you'll need a python interpreter. The program was written using Python 3.10, so install either 3.10
 or any version above 3.10. You may download it from <a href="https://www.python.org/downloads/">here</a>.</p>
-<p>Afterwards, <code>cd</code> to the 'client/', create a virtual environment<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup> and install the requirements. To do this, run;</p>
+<p>Afterwards, <code>cd</code> to the 'client/', create a virtual environment<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup> and install the requirements.</p>
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Windows</label><label for="__tabbed_2_2">Linux and MacOS</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
@@ -367,8 +367,8 @@ or any version above 3.10. You may download it from <a href="https://www.python.
 </div>
 </div>
 </div>
-<p>Or, if you're using Anaconda / Miniconda;</p>
-<p><code>conda env create --file requirements.txt --name smilin_file_client python=3.10</code></p>
+<p>Or, if you want to use Anaconda / Miniconda;</p>
+<p><code>conda env create -f environment.yml</code></p>
 <p><code>conda activate smilin_file_client</code></p>
 <p>This installs all the packages required by the Client to the virtual environment.</p>
 <p>After installing the requirements, you need to install GPG (GNU Privacy Guard), which is essential for the 
