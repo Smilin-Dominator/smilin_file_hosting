@@ -37,12 +37,10 @@ MariaDB Container contains a MariaDB Database with the user and password specifi
 To run the client, you'll need a python interpreter. The program was written using Python 3.10, so install either 3.10
 or any version above 3.10. You may download it from [here](https://www.python.org/downloads/).
 
-Afterwards, `cd` to the 'client/', create a virtual environment[^1] and install the requirements. To do this, run;
-
+Afterwards, `cd` to the 'client/', create a virtual environment[^1] and install the requirements.
 [^1]:   Instead of using the system-wide or local interpreter, it's safer and more efficient to use a virtual
         environment.<br>Note that you don't have to use python's "venv", you can even use an Anaconda Environment, as
         specified right under.
-
 
 === "Windows"
     `python -m venv ./venv/`
@@ -58,9 +56,9 @@ Afterwards, `cd` to the 'client/', create a virtual environment[^1] and install 
 
     `python3 -m pip install -r requirements.txt`
 
-Or, if you're using Anaconda / Miniconda;
+Or, if you want to use Anaconda / Miniconda;
 
-`conda env create --file requirements.txt --name smilin_file_client python=3.10`
+`conda env create -f environment.yml`
 
 `conda activate smilin_file_client`
 
