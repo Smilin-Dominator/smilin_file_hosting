@@ -21,6 +21,7 @@ from shutil import which
 from time import time_ns
 from gnupg import GPG
 from platform import system
+from Crypto.Cipher import AES
 
 
 class Crypto:
@@ -32,6 +33,7 @@ class Crypto:
         self.gpg = GPG
         self.files = Path("files")
         self.temp = Path("temp")
+        self.key: bytes = b""
 
     def setup_gpg(self, email: str) -> None:
         """
@@ -57,14 +59,16 @@ class Crypto:
         """
         return str(self.gpg.decrypt(string))
 
-    def encrypt_string(self, string: str) -> bytes:
+    def encrypt_string(self, string: str) -> [bytes, bytes]:
         """
         This accepts a string and returns an encrypted binary
 
         :param string: The string to encrypt
-        :return: The encrypted output (binary)
+        :return: The encrypted output and the initialization vector
         """
-        return self.gpg.encrypt(string, recipients=[self.email])
+        encoded = string.encode('utf-8')
+        cipher = AES.new(self.key, AES.MODE_CFB)
+        return cipher.encrypt(encoded), cipher.iv
 
     def encrypt_file(self, path: Path) -> Path:
         """
