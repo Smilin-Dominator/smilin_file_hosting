@@ -50,14 +50,16 @@ class Crypto:
         self.gpg = GPG(gpgbinary=which("gpg"), gnupghome=gpg_home)
         self.email = email
 
-    def decrypt_string(self, string: bytes) -> str:
+    def decrypt_string(self, string: bytes, iv: bytes) -> str:
         """
         This accepts a binary and returns a decrypted string
 
+        :param iv: The initialization vector
         :param string: The bytes
         :return: The decrypted output
         """
-        return str(self.gpg.decrypt(string))
+        cipher = AES.new(self.key, AES.MODE_CFB, iv=iv)
+        return cipher.decrypt(string).decode('utf-8')
 
     def encrypt_string(self, string: str) -> [bytes, bytes]:
         """
