@@ -61,15 +61,19 @@ class Crypto:
         cipher = AES.new(self.key, AES.MODE_CFB, iv=iv)
         return cipher.decrypt(string).decode('utf-8')
 
-    def encrypt_string(self, string: str) -> [bytes, bytes]:
+    def encrypt_string(self, string: str, iv: bytes = None) -> list[bytes, bytes]:
         """
         This accepts a string and returns an encrypted binary
 
         :param string: The string to encrypt
+        :param iv: The Initialization Vector
         :return: The encrypted output and the initialization vector
         """
         encoded = string.encode('utf-8')
-        cipher = AES.new(self.key, AES.MODE_CFB)
+        if iv is not None:
+            cipher = AES.new(self.key, AES.MODE_CFB, iv=iv)
+        else:
+            cipher = AES.new(self.key, AES.MODE_CFB)
         return cipher.encrypt(encoded), cipher.iv
 
     def encrypt_file(self, path: Path) -> Path:
