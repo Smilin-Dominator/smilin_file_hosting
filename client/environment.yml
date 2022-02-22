@@ -6,8 +6,7 @@ dependencies:
   - python=3.10.2
   - requests
   - furl
-  - rsa
-  - python-gnupg
+  - pycryptodome
   - pip
   - pip:
       - PyQt6
