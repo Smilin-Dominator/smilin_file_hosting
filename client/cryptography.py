@@ -102,14 +102,22 @@ class Crypto:
             r.close()
         return out
 
-    def decrypt_file(self, path: str, new_file: str) -> None:
+    def decrypt_file(self, path: str, new_file: str, iv: bytes) -> None:
         """
         This decrypts the file, writes it to the specified path and deletes the encrypted file.
 
         :param path: Absolute path to the file that should be decrypted
         :param new_file: The output filename
+        :param iv: The initialization vector used to encrypt the file
         """
         self.temp.mkdir() if not self.temp.exists() else None
-        with open(path, "rb") as r:
-            dec = self.gpg.decrypt_file(file=r, output=new_file, always_trust=True)
+        ciper = AES.new(self.key, AES.MODE_CFB, iv=iv)
+        with open(path, "rb") as r, open(new_file, "wb") as w:
+            buf = r.read(self.buffer_size)
+            while len(buf) > 0:
+                dec = ciper.decrypt(buf)
+                w.write(dec)
+                r = r.read(self.buffer_size)
+            r.close()
+            w.close()
         Path(path).unlink()
