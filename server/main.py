@@ -106,12 +106,17 @@ async def get_file(username: str, id: int):
     if not homedir.exists():
         homedir.mkdir()
         return False
-    db_result = await database.fetch_one(f"SELECT hash, filename FROM {table.name} WHERE id = {id}")
+    db_result = await database.fetch_one(f"SELECT hash, filename, iv FROM {table.name} WHERE id = {id}")
     if not db_result:
         return False
     else:
         path_to_file = Path.joinpath(homedir, db_result['hash'])
-        return FileResponse(path=path_to_file, media_type="application/octet-stream", filename=db_result['filename'])
+        return FileResponse(
+            path=path_to_file,
+            media_type="application/octet-stream",
+            filename=db_result['filename'],
+            headers={"iv": db_result["iv"]}
+        )
 
 
 @app.post("/{username}/upload/")
