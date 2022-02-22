@@ -50,7 +50,7 @@ class CredentialsUI(QMainWindow):
         # Declaration
         self.token_input: QLineEdit = None
         self.link_input: QLineEdit = None
-        self.email_input: QLineEdit = None
+        self.key_input: QLineEdit = None
         self.register_button: QPushButton = None
         self.connect_button: QPushButton = None
         self.credentials_status: QLabel = None
@@ -77,7 +77,7 @@ class CredentialsUI(QMainWindow):
             js: dict = loads(open(config_file, "r").read())
             self.token_input.setText(js.get("token"))
             self.link_input.setText(js.get("link"))
-            self.email_input.setText(js.get("email"))
+            self.key_input.setText(js.get("key"))
             if js.get("advanced") is not None:
                 self.concurrent_downloads.setValue(js.get("advanced").get("concurrent_downloads"))
                 self.concurrent_uploads.setValue(js.get("advanced").get("concurrent_uploads"))
@@ -92,7 +92,7 @@ class CredentialsUI(QMainWindow):
         return {
             "token": self.token_input.text(),
             "link": self.link_input.text(),
-            "email": self.email_input.text(),
+            "key": self.key_input.text(),
             "advanced": {
                 "concurrent_downloads": self.concurrent_downloads.value(),
                 "concurrent_uploads": self.concurrent_uploads.value()
@@ -107,7 +107,7 @@ class CredentialsUI(QMainWindow):
         - If they aren't, it sets the status to "Not Enough Arguments!"
         """
         get = self.get_options()
-        text = [get["token"], get["link"], get["email"]]
+        text = [get["token"], get["link"], get["key"]]
         check = [i for i in text if i != ""]
         if len(check) != 3:
             self.credentials_status.setText("Not Enough Arguments!")
