@@ -27,6 +27,7 @@ class FileEntry(BaseModel):
     id: int
     filename: bytes
     hash: str
+    iv: bytes
 
 
 class FileInput(BaseModel):
