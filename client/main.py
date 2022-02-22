@@ -22,6 +22,7 @@ from pathlib import Path
 from sys import argv
 from threading import Thread, Lock
 from concurrent.futures import ThreadPoolExecutor
+from binascii import unhexlify
 
 from PyQt6 import uic
 from PyQt6.QtCore import Qt
@@ -381,7 +382,7 @@ class MainUI(QMainWindow):
 
             def insert_element(file: dict):
                 wid = QTreeWidgetItem()
-                decrypted_name = crypto.decrypt_string(file["filename"])
+                decrypted_name = crypto.decrypt_string(unhexlify(file["filename"]), unhexlify(file["iv"]))
                 file["filename"] = decrypted_name
                 wid.setText(0, decrypted_name)
                 wid.setCheckState(0, Qt.CheckState.Unchecked)

@@ -49,7 +49,7 @@ class Crypto:
         :param string: The bytes
         :return: The decrypted output
         """
-        cipher = AES.new(self.key, AES.MODE_CFB, iv=iv)
+        cipher = AES.new(self.key, AES.MODE_CFB, iv=bytes(iv))
         return cipher.decrypt(string).decode('utf-8')
 
     def encrypt_string(self, string: str, iv: bytes = None) -> bytes | tuple[bytes, bytes]:
