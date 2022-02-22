@@ -1,4 +1,4 @@
 requests
 furl
-pycryptodome
 PyQt6
+cryptography
