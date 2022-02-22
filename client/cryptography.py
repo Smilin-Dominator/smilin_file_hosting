@@ -16,13 +16,8 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-from typing import Tuple
-
 from pathlib import Path
-from shutil import which
 from time import time_ns
-from gnupg import GPG
-from platform import system
 from Crypto.Cipher import AES
 
 
@@ -32,26 +27,9 @@ class Crypto:
     def __init__(self) -> None:
         """ This initiates the paths 'files' and 'temp' """
         self.buffer_size = 65536  # 64 KB
-        self.email = None
-        self.gpg = GPG
         self.files = Path("files")
         self.temp = Path("temp")
         self.key: bytes = b""
-
-    def setup_gpg(self, email: str) -> None:
-        """
-        This accepts the GPG User's Email and sets up the GPG instance with the GPG Home Directory
-
-        :param email: The Email attached to the user's key
-        """
-        gpg_home = ""
-        match system():
-            case "Windows":
-                gpg_home = str(Path(Path.home(), "AppData", "Roaming", "gnupg"))
-            case _:
-                gpg_home = str(Path(Path.home(), ".gnupg"))
-        self.gpg = GPG(gpgbinary=which("gpg"), gnupghome=gpg_home)
-        self.email = email
 
     def decrypt_string(self, string: bytes, iv: bytes) -> str:
         """
