@@ -38,6 +38,7 @@ RefTable = Table(
     md,
     Column("id", Integer, primary_key=True),
     Column("filename", BLOB),
+    Column("iv", BLOB),
     Column("hash", VARCHAR),
     Column("time", TIMESTAMP)
 )

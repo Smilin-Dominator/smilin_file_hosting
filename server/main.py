@@ -72,6 +72,7 @@ async def create_user():
                 CREATE TABLE `{uuid.replace("-", "")}` (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     filename BLOB,
+                    iv BLOB,
                     hash VARCHAR(64),
                     time TIMESTAMP
                 );
