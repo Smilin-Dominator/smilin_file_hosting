@@ -19,6 +19,8 @@
 from pathlib import Path
 from time import time_ns
 from Crypto.Cipher import AES
+from os import urandom
+from binascii import hexlify, unhexlify
 
 
 class Crypto:
@@ -30,6 +32,14 @@ class Crypto:
         self.files = Path("files")
         self.temp = Path("temp")
         self.key: bytes = b""
+
+    def generate_key(self):
+        gen = urandom(32)  # 32 Bytes -> 256 Bits
+        self.key = gen
+        return hexlify(gen)
+
+    def set_key(self, key: bytes):
+        self.key = unhexlify(key)
 
     def decrypt_string(self, string: bytes, iv: bytes) -> str:
         """
