@@ -115,7 +115,7 @@ async def get_file(username: str, id: int):
 
 
 @app.post("/{username}/upload/")
-async def upload_file(username: str, encrypted_filename: bytes, file: UploadFile = File(...)):
+async def upload_file(username: str, encrypted_filename: bytes, iv: bytes, file: UploadFile = File(...)):
     table = get_table(username)
     homedir = Path.joinpath(files_path, username)
     if not homedir.exists():
@@ -126,9 +126,10 @@ async def upload_file(username: str, encrypted_filename: bytes, file: UploadFile
     path_to_file = Path.joinpath(homedir, hashed)
     with open(path_to_file, "wb") as w:
         copyfileobj(file.file, w)
-    query = f"INSERT INTO {table.name} (filename, hash, time) VALUES (:filename, :hash, :time);"
+    query = f"INSERT INTO {table.name} (filename, iv, hash, time) VALUES (:filename, :iv, :hash, :time);"
     values = {
         "filename": encrypted_filename,
+        "iv": iv,
         "hash": hashed,
         "time": time_of_uploading
     }
