@@ -61,7 +61,7 @@ class Crypto:
         cipher = AES.new(self.key, AES.MODE_CFB, iv=iv)
         return cipher.decrypt(string).decode('utf-8')
 
-    def encrypt_string(self, string: str, iv: bytes = None) -> list[bytes, bytes]:
+    def encrypt_string(self, string: str, iv: bytes = None) -> bytes | tuple[bytes, bytes]:
         """
         This accepts a string and returns an encrypted binary
 
@@ -72,9 +72,10 @@ class Crypto:
         encoded = string.encode('utf-8')
         if iv is not None:
             cipher = AES.new(self.key, AES.MODE_CFB, iv=iv)
+            return cipher.encrypt(encoded)
         else:
             cipher = AES.new(self.key, AES.MODE_CFB)
-        return cipher.encrypt(encoded), cipher.iv
+            return cipher.encrypt(encoded), cipher.iv
 
     def encrypt_file(self, path: Path) -> Path:
         """
