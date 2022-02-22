@@ -16,6 +16,8 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+from typing import Tuple
+
 from pathlib import Path
 from shutil import which
 from time import time_ns
@@ -29,6 +31,7 @@ class Crypto:
 
     def __init__(self) -> None:
         """ This initiates the paths 'files' and 'temp' """
+        self.buffer_size = 65536  # 64 KB
         self.email = None
         self.gpg = GPG
         self.files = Path("files")
@@ -77,18 +80,26 @@ class Crypto:
             cipher = AES.new(self.key, AES.MODE_CFB)
             return cipher.encrypt(encoded), cipher.iv
 
-    def encrypt_file(self, path: Path) -> Path:
+    def encrypt_file(self, path: Path, iv: bytes) -> Path:
         """
         This accepts an absolute path to a file, encrypts it and returns the Patg of the encrypted
         file stored in 'temp'
 
+        :param iv: The initialization vector to encrypt the file with
         :param path: The path to the file to encrypt
         :return: The path to the encrypted file in 'temp'
         """
         self.temp.mkdir() if not self.temp.exists() else None
-        with open(path, "rb") as r:
-            out = Path(self.temp, f"{path.name}_{str(time_ns())}")
-            self.gpg.encrypt_file(file=r, recipients=[self.email], output=out)
+        cipher = AES.new(self.key, AES.MODE_CFB, iv)
+        out = Path(self.temp, f"{path.name}_{str(time_ns())}")
+        with open(path, "rb") as r, open(out, "wb") as w:
+            buf = r.read(self.buffer_size)
+            while len(buf) > 0:
+                bits = cipher.encrypt(buf)
+                w.write(bits)
+                buf = r.read(16)
+            w.close()
+            r.close()
         return out
 
     def decrypt_file(self, path: str, new_file: str) -> None:
