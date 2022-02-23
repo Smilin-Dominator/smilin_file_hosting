@@ -85,7 +85,7 @@ class Crypto:
             while len(buf) > 0:
                 bits = cipher.encrypt(buf)
                 w.write(bits)
-                buf = r.read(16)
+                buf = r.read(self.buffer_size)
             w.close()
             r.close()
         return out
@@ -99,13 +99,13 @@ class Crypto:
         :param iv: The initialization vector used to encrypt the file
         """
         self.temp.mkdir() if not self.temp.exists() else None
-        ciper = AES.new(self.key, AES.MODE_CFB, iv=iv)
+        cipher = AES.new(self.key, AES.MODE_CFB, iv=iv)
         with open(path, "rb") as r, open(new_file, "wb") as w:
             buf = r.read(self.buffer_size)
             while len(buf) > 0:
-                dec = ciper.decrypt(buf)
+                dec = cipher.decrypt(buf)
                 w.write(dec)
-                r = r.read(self.buffer_size)
+                buf = r.read(self.buffer_size)
             r.close()
             w.close()
         Path(path).unlink()
