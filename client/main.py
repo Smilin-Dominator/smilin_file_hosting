@@ -22,6 +22,7 @@ from pathlib import Path
 from sys import argv
 from threading import Thread, Lock
 from concurrent.futures import ThreadPoolExecutor
+from binascii import unhexlify
 
 from PyQt6 import uic
 from PyQt6.QtCore import Qt
@@ -50,7 +51,7 @@ class CredentialsUI(QMainWindow):
         # Declaration
         self.token_input: QLineEdit = None
         self.link_input: QLineEdit = None
-        self.email_input: QLineEdit = None
+        self.key_input: QLineEdit = None
         self.register_button: QPushButton = None
         self.connect_button: QPushButton = None
         self.credentials_status: QLabel = None
@@ -77,7 +78,7 @@ class CredentialsUI(QMainWindow):
             js: dict = loads(open(config_file, "r").read())
             self.token_input.setText(js.get("token"))
             self.link_input.setText(js.get("link"))
-            self.email_input.setText(js.get("email"))
+            self.key_input.setText(js.get("key"))
             if js.get("advanced") is not None:
                 self.concurrent_downloads.setValue(js.get("advanced").get("concurrent_downloads"))
                 self.concurrent_uploads.setValue(js.get("advanced").get("concurrent_uploads"))
@@ -92,7 +93,7 @@ class CredentialsUI(QMainWindow):
         return {
             "token": self.token_input.text(),
             "link": self.link_input.text(),
-            "email": self.email_input.text(),
+            "key": self.key_input.text(),
             "advanced": {
                 "concurrent_downloads": self.concurrent_downloads.value(),
                 "concurrent_uploads": self.concurrent_uploads.value()
@@ -107,7 +108,7 @@ class CredentialsUI(QMainWindow):
         - If they aren't, it sets the status to "Not Enough Arguments!"
         """
         get = self.get_options()
-        text = [get["token"], get["link"], get["email"]]
+        text = [get["token"], get["link"], get["key"]]
         check = [i for i in text if i != ""]
         if len(check) != 3:
             self.credentials_status.setText("Not Enough Arguments!")
@@ -121,10 +122,12 @@ class CredentialsUI(QMainWindow):
         returns a unique UUID token, which you will use to connect. Note that if you
         lose this token, you won't be able to get your files!
         """
+        global crypto
         if self.link_input.text() == "":
             self.credentials_status.setText("Link Is Empty!")
         else:
             token = api.register(self.link_input.text())
+            self.key_input.setText(crypto.generate_key())
             self.credentials_status.setText("Successfully Registered!")
             self.token_input.setText(token)
 
@@ -149,7 +152,7 @@ class CredentialsUI(QMainWindow):
             self.credentials_status.setText("Connection Failed!")
             self.show()
         else:
-            crypto.setup_gpg(options["email"])
+            crypto.set_key(options["key"])
             self.close()
             main_window.show()
             main_window.list_items()
@@ -170,7 +173,7 @@ class CredentialsUI(QMainWindow):
                 if not api.test_connection():
                     self.credentials_status.setText("Connection Failed!")
                     return False
-                crypto.setup_gpg(js["email"])
+                crypto.set_key(js["key"])
                 main_window.MAX_CONCURRENT_UPLOADS = js["advanced"]["concurrent_uploads"]
                 main_window.MAX_CONCURRENT_DOWNLOADS = js["advanced"]["concurrent_downloads"]
                 main_window.show()
@@ -379,7 +382,7 @@ class MainUI(QMainWindow):
 
             def insert_element(file: dict):
                 wid = QTreeWidgetItem()
-                decrypted_name = crypto.decrypt_string(file["filename"])
+                decrypted_name = crypto.decrypt_string(unhexlify(file["filename"]), unhexlify(file["iv"]))
                 file["filename"] = decrypted_name
                 wid.setText(0, decrypted_name)
                 wid.setCheckState(0, Qt.CheckState.Unchecked)

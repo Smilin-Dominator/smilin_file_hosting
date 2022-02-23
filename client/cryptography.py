@@ -17,10 +17,10 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from pathlib import Path
-from shutil import which
 from time import time_ns
-from gnupg import GPG
-from platform import system
+from Crypto.Cipher import AES
+from os import urandom
+from binascii import hexlify, unhexlify
 
 
 class Crypto:
@@ -28,66 +28,84 @@ class Crypto:
 
     def __init__(self) -> None:
         """ This initiates the paths 'files' and 'temp' """
-        self.email = None
-        self.gpg = GPG
+        self.buffer_size = 65536  # 64 KB
         self.files = Path("files")
         self.temp = Path("temp")
+        self.key: bytes = b""
 
-    def setup_gpg(self, email: str) -> None:
-        """
-        This accepts the GPG User's Email and sets up the GPG instance with the GPG Home Directory
+    def generate_key(self):
+        gen = urandom(32)  # 32 Bytes -> 256 Bits
+        self.key = gen
+        return hexlify(gen)
 
-        :param email: The Email attached to the user's key
-        """
-        gpg_home = ""
-        match system():
-            case "Windows":
-                gpg_home = str(Path(Path.home(), "AppData", "Roaming", "gnupg"))
-            case _:
-                gpg_home = str(Path(Path.home(), ".gnupg"))
-        self.gpg = GPG(gpgbinary=which("gpg"), gnupghome=gpg_home)
-        self.email = email
+    def set_key(self, key: bytes):
+        self.key = unhexlify(key)
 
-    def decrypt_string(self, string: bytes) -> str:
+    def decrypt_string(self, string: bytes, iv: bytes) -> str:
         """
         This accepts a binary and returns a decrypted string
 
+        :param iv: The initialization vector
         :param string: The bytes
         :return: The decrypted output
         """
-        return str(self.gpg.decrypt(string))
+        cipher = AES.new(self.key, AES.MODE_CFB, iv=bytes(iv))
+        return cipher.decrypt(string).decode('utf-8')
 
-    def encrypt_string(self, string: str) -> bytes:
+    def encrypt_string(self, string: str, iv: bytes = None) -> bytes | tuple[bytes, bytes]:
         """
         This accepts a string and returns an encrypted binary
 
         :param string: The string to encrypt
-        :return: The encrypted output (binary)
+        :param iv: The Initialization Vector
+        :return: The encrypted output and the initialization vector
         """
-        return self.gpg.encrypt(string, recipients=[self.email])
+        encoded = string.encode('utf-8')
+        if iv is not None:
+            cipher = AES.new(self.key, AES.MODE_CFB, iv=iv)
+            return cipher.encrypt(encoded)
+        else:
+            cipher = AES.new(self.key, AES.MODE_CFB)
+            return cipher.encrypt(encoded), cipher.iv
 
-    def encrypt_file(self, path: Path) -> Path:
+    def encrypt_file(self, path: Path, iv: bytes) -> Path:
         """
         This accepts an absolute path to a file, encrypts it and returns the Patg of the encrypted
         file stored in 'temp'
 
+        :param iv: The initialization vector to encrypt the file with
         :param path: The path to the file to encrypt
         :return: The path to the encrypted file in 'temp'
         """
         self.temp.mkdir() if not self.temp.exists() else None
-        with open(path, "rb") as r:
-            out = Path(self.temp, f"{path.name}_{str(time_ns())}")
-            self.gpg.encrypt_file(file=r, recipients=[self.email], output=out)
+        cipher = AES.new(self.key, AES.MODE_CFB, iv)
+        out = Path(self.temp, f"{path.name}_{str(time_ns())}")
+        with open(path, "rb") as r, open(out, "wb") as w:
+            buf = r.read(self.buffer_size)
+            while len(buf) > 0:
+                bits = cipher.encrypt(buf)
+                w.write(bits)
+                buf = r.read(self.buffer_size)
+            w.close()
+            r.close()
         return out
 
-    def decrypt_file(self, path: str, new_file: str) -> None:
+    def decrypt_file(self, path: str, new_file: str, iv: bytes) -> None:
         """
         This decrypts the file, writes it to the specified path and deletes the encrypted file.
 
         :param path: Absolute path to the file that should be decrypted
         :param new_file: The output filename
+        :param iv: The initialization vector used to encrypt the file
         """
         self.temp.mkdir() if not self.temp.exists() else None
-        with open(path, "rb") as r:
-            dec = self.gpg.decrypt_file(file=r, output=new_file, always_trust=True)
+        cipher = AES.new(self.key, AES.MODE_CFB, iv=iv)
+        with open(path, "rb") as r, open(new_file, "wb") as w:
+            buf = r.read(self.buffer_size)
+            while len(buf) > 0:
+                dec = cipher.decrypt(buf)
+                w.write(dec)
+                buf = r.read(self.buffer_size)
+            r.close()
+            w.close()
         Path(path).unlink()

@@ -64,15 +64,6 @@ Or, if you want to use Anaconda / Miniconda;
 
 This installs all the packages required by the Client to the virtual environment.
 
-After installing the requirements, you need to install GPG (GNU Privacy Guard), which is essential for the 
-encryption part. You may download it from [here](https://gnupg.org/download/index.html). After installing GPG, you
-need to generate a Key Pair. As this is a process that's not that straightforward, here's a [guide](https://www.redhat.com/sysadmin/creating-gpg-keypairs)
-to follow. But here are my preferences and options essential for the program to function properly;
-
-* `Kind of key` -> RSA and RSA (NEEDED)
-* `Size` -> Any size, I'd recommend a high amount (>=2048)
-* `Email` -> This is the same email that you'll use when running the program, so choose wisely
-
 You may finally run the program by typing;
 
 === "Windows"

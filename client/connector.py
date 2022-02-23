@@ -21,6 +21,8 @@ from pathlib import Path
 from furl import furl
 from requests import get, post, delete, ConnectionError
 from cryptography import Crypto
+from binascii import hexlify, unhexlify
+from base64 import b64decode
 
 
 class API:
@@ -119,11 +121,12 @@ class API:
             self.files.mkdir()
         file = get(url.tostr(), params={"id": id}, stream=True)
         if file.content != b'false':
-            path_to_temp_file = Path(self.temp, "".join([filename, ".gpg"]))
+            iv = b64decode(file.headers["iv"].encode('utf-8')).decode('utf-8')
+            path_to_temp_file = Path(self.temp, "".join([filename, ".enc"]))
             path_to_file = Path(self.files, filename)
             with open(path_to_temp_file, "wb") as d:
                 d.write(file.content)
-            self.crypto.decrypt_file(str(path_to_temp_file), str(path_to_file))
+            self.crypto.decrypt_file(str(path_to_temp_file), str(path_to_file), unhexlify(iv))
         else:
             print("No Such File!")
 
@@ -149,9 +152,15 @@ class API:
         """
         url = deepcopy(self.base_url)
         url.path.segments.append("upload")
+
         path_to_file = Path(filename)
-        enc_path = self.crypto.encrypt_file(path_to_file)
         real_filename = path_to_file.name
-        enc_filename = self.crypto.encrypt_string(real_filename)
-        post(url.tostr(), params={"encrypted_filename": enc_filename}, files={"file": open(enc_path, "rb")})
+        enc_filename, iv = self.crypto.encrypt_string(real_filename)
+
+        enc_path = self.crypto.encrypt_file(path_to_file, iv)
+        post(url.tostr(), params={
+            "encrypted_filename": hexlify(enc_filename),
+            "iv": hexlify(iv)},
+             files={"file": open(enc_path, "rb")}
+         )
         enc_path.unlink()

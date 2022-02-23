@@ -27,6 +27,7 @@ class FileEntry(BaseModel):
     id: int
     filename: bytes
     hash: str
+    iv: bytes
 
 
 class FileInput(BaseModel):
@@ -38,6 +39,7 @@ RefTable = Table(
     md,
     Column("id", Integer, primary_key=True),
     Column("filename", BLOB),
+    Column("iv", BLOB),
     Column("hash", VARCHAR),
     Column("time", TIMESTAMP)
 )

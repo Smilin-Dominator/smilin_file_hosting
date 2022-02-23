@@ -27,6 +27,7 @@ from copy import deepcopy
 from datetime import datetime
 from sqlalchemy import create_engine
 from uuid import uuid4, UUID
+from base64 import b64encode
 
 
 DATABASE_URL = "mysql+pymysql://test:123@MariaDB/app"
@@ -72,6 +73,7 @@ async def create_user():
                 CREATE TABLE `{uuid.replace("-", "")}` (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     filename BLOB,
+                    iv BLOB,
                     hash VARCHAR(64),
                     time TIMESTAMP
                 );
@@ -105,16 +107,21 @@ async def get_file(username: str, id: int):
     if not homedir.exists():
         homedir.mkdir()
         return False
-    db_result = await database.fetch_one(f"SELECT hash, filename FROM {table.name} WHERE id = {id}")
+    db_result = await database.fetch_one(f"SELECT hash, filename, iv FROM {table.name} WHERE id = {id}")
     if not db_result:
         return False
     else:
         path_to_file = Path.joinpath(homedir, db_result['hash'])
-        return FileResponse(path=path_to_file, media_type="application/octet-stream", filename=db_result['filename'])
+        return FileResponse(
+            path=path_to_file,
+            media_type="application/octet-stream",
+            filename=db_result['filename'],
+            headers={"iv": b64encode(db_result["iv"]).decode('utf-8')}
+        )
 
 
 @app.post("/{username}/upload/")
-async def upload_file(username: str, encrypted_filename: bytes, file: UploadFile = File(...)):
+async def upload_file(username: str, encrypted_filename: bytes, iv: bytes, file: UploadFile = File(...)):
     table = get_table(username)
     homedir = Path.joinpath(files_path, username)
     if not homedir.exists():
@@ -125,9 +132,10 @@ async def upload_file(username: str, encrypted_filename: bytes, file: UploadFile
     path_to_file = Path.joinpath(homedir, hashed)
     with open(path_to_file, "wb") as w:
         copyfileobj(file.file, w)
-    query = f"INSERT INTO {table.name} (filename, hash, time) VALUES (:filename, :hash, :time);"
+    query = f"INSERT INTO {table.name} (filename, iv, hash, time) VALUES (:filename, :iv, :hash, :time);"
     values = {
         "filename": encrypted_filename,
+        "iv": iv,
         "hash": hashed,
         "time": time_of_uploading
     }
