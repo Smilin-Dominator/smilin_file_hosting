@@ -42,3 +42,16 @@ ThreadPoolExecutors and Locks.
 - Added an option to specify the maximum amount of concurrent downloads and uploads.
 ### Fixes
 - \#2 -> Error When Decrypting
+
+
+## v1.3
+This is the third major update. I switched the encryption method from GPG to AES-256 CFB. The main reason for this was
+GPG being way too slow to decrypt filenames and even files (one would load after each other with a literal second
+delay when refreshing); But with AES, all file elements load near instantly.
+
+### Features
+- AES 256-Bit Encryption with the CFB Cipher instead of GnuPG
+- Wayyy Faster Encryption and Decryption 
+- The database has an additional column for the Initialization Vector used to Encrypt the File and Filename
+### Fixes
+- None
