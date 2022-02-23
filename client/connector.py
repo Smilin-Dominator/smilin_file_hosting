@@ -22,6 +22,7 @@ from furl import furl
 from requests import get, post, delete, ConnectionError
 from cryptography import Crypto
 from binascii import hexlify, unhexlify
+from base64 import b64decode
 
 
 class API:
@@ -120,8 +121,8 @@ class API:
             self.files.mkdir()
         file = get(url.tostr(), params={"id": id}, stream=True)
         if file.content != b'false':
-            iv: bytes = bytes(file.headers.get("iv"))
-            path_to_temp_file = Path(self.temp, "".join([filename, ".gpg"]))
+            iv = b64decode(file.headers["iv"].encode('utf-8')).decode('utf-8')
+            path_to_temp_file = Path(self.temp, "".join([filename, ".enc"]))
             path_to_file = Path(self.files, filename)
             with open(path_to_temp_file, "wb") as d:
                 d.write(file.content)
@@ -157,5 +158,9 @@ class API:
         enc_filename, iv = self.crypto.encrypt_string(real_filename)
 
         enc_path = self.crypto.encrypt_file(path_to_file, iv)
-        post(url.tostr(), params={"encrypted_filename": hexlify(enc_filename), "iv": hexlify(iv)}, files={"file": open(enc_path, "rb")})
+        post(url.tostr(), params={
+            "encrypted_filename": hexlify(enc_filename),
+            "iv": hexlify(iv)},
+             files={"file": open(enc_path, "rb")}
+         )
         enc_path.unlink()

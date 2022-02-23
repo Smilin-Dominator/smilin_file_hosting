@@ -27,6 +27,7 @@ from copy import deepcopy
 from datetime import datetime
 from sqlalchemy import create_engine
 from uuid import uuid4, UUID
+from base64 import b64encode
 
 
 DATABASE_URL = "mysql+pymysql://test:123@MariaDB/app"
@@ -115,7 +116,7 @@ async def get_file(username: str, id: int):
             path=path_to_file,
             media_type="application/octet-stream",
             filename=db_result['filename'],
-            headers={"iv": db_result["iv"]}
+            headers={"iv": b64encode(db_result["iv"]).decode('utf-8')}
         )
 
 
