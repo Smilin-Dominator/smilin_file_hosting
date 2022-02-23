@@ -23,16 +23,14 @@ This guide assumes that you've performed all the actions mentioned in the instal
 Upon first launch, you'll see a window called [credentials](#credentials-window).
 
 If it's your absolute first time setting up the client; Enter the `link` into the link field and hit
-register. If the link is valid, the `token` field should be filled with a random token.<br>
+register. If the link is valid, the `token` field should be filled with a random token. and a Key will be generated for you<br>
 Otherwise, just enter the link into the `link` field and your token into the `token` field, without hitting register.
-
-After entering the `token` and the `link`, enter the email bound to your GPG Key into the `email` field.
 
 In the advanced features section, input the maximum number of concurrent uploads and downloads that
 can take place parallely. I've found that 4 is the perfect balance for me, but you can change it. I've limited the
 numbers to 10, for obvious reasons, but you can always override it by editing the JSON file manually.
 
-And finally, click 'Save and Connect'. If the connection succeeds, you will be transferred to the Main UI. Then,
+Finally, click 'Save and Connect'. If the connection succeeds, you will be transferred to the Main UI. Then,
 you can refer to the following section.
     
 ### The Main Program
@@ -43,14 +41,15 @@ You will get this screen if;
 * It's the first time launching the program.
 * The connection to the server failed.
 * The token is invalid.
+* You pressed 'credentials'
 
 In the first container (labeled "Credentials"), you'll see 3 Input fields;
 
-| Element | Type  |                           Function                           |
-|:-------:|:-----:|:------------------------------------------------------------:|
-|  Token  | Entry | This is the unique username you use to connect to the server |
-|  Link   | Entry |                This is the link to the server                |
-|  Email  | Entry |          This is the email attached to your GPG Key          |
+| Element | Type  |                                              Function                                               |
+|:-------:|:-----:|:---------------------------------------------------------------------------------------------------:|
+|  Token  | Entry |                    This is the unique username you use to connect to the server                     |
+|  Link   | Entry |                                   This is the link to the server                                    |
+|   Key   | Entry | This is your AES key, You can either generate it by hitting 'Register' or entering a 256 Bit String |
 
 In the second container (labeled "Advanced Features"), you'll see 2 Number Input Boxes (SpinBoxes);
 
@@ -72,11 +71,11 @@ In the third container (labeled "Operations"), you'll see 2 Buttons and 1 Label;
 #### Main Window
 In the left-most container (labeled "Status"), there are 2 more containers and 1 label:
 
-|      Element      |    Type    |                               Function                                |
-|:-----------------:|:----------:|:---------------------------------------------------------------------:|
-|  Uploading Files  | ListWidget |       This will display the files that are currently uploading        |
-|      Status       |   Label    | This invisible status will show the status; Such as connection errors |
-| Downloading Files | ListWidget |      This will display the files that are currently downloading       |
+|      Element      |    Type    |                                          Function                                          |
+|:-----------------:|:----------:|:------------------------------------------------------------------------------------------:|
+|  Uploading Files  | ListWidget |                  This will display the files that are currently uploading                  |
+|      Status       |   Label    | This invisible status will make itself visible and show statuses such as connection errors |
+| Downloading Files | ListWidget |                 This will display the files that are currently downloading                 |
 
 In the top-right container (labeled "Files"), there's a TreeWidget:
 
