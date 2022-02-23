@@ -364,13 +364,12 @@ send requests to the server again.</p>
 <h3 id="first-time-setup">First Time Setup<a class="headerlink" href="#first-time-setup" title="Permanent link">#</a></h3>
 <p>Upon first launch, you'll see a window called <a href="#credentials-window">credentials</a>.</p>
 <p>If it's your absolute first time setting up the client; Enter the <code>link</code> into the link field and hit
-register. If the link is valid, the <code>token</code> field should be filled with a random token.<br>
+register. If the link is valid, the <code>token</code> field should be filled with a random token. and a Key will be generated for you<br>
 Otherwise, just enter the link into the <code>link</code> field and your token into the <code>token</code> field, without hitting register.</p>
-<p>After entering the <code>token</code> and the <code>link</code>, enter the email bound to your GPG Key into the <code>email</code> field.</p>
 <p>In the advanced features section, input the maximum number of concurrent uploads and downloads that
 can take place parallely. I've found that 4 is the perfect balance for me, but you can change it. I've limited the
 numbers to 10, for obvious reasons, but you can always override it by editing the JSON file manually.</p>
-<p>And finally, click 'Save and Connect'. If the connection succeeds, you will be transferred to the Main UI. Then,
+<p>Finally, click 'Save and Connect'. If the connection succeeds, you will be transferred to the Main UI. Then,
 you can refer to the following section.</p>
 <h3 id="the-main-program">The Main Program<a class="headerlink" href="#the-main-program" title="Permanent link">#</a></h3>
 <h4 id="credentials-window">Credentials Window<a class="headerlink" href="#credentials-window" title="Permanent link">#</a></h4>
@@ -379,6 +378,7 @@ you can refer to the following section.</p>
 <li>It's the first time launching the program.</li>
 <li>The connection to the server failed.</li>
 <li>The token is invalid.</li>
+<li>You pressed 'credentials'</li>
 </ul>
 <p>In the first container (labeled "Credentials"), you'll see 3 Input fields;</p>
 <table>
@@ -401,9 +401,9 @@ you can refer to the following section.</p>
 <td align="center">This is the link to the server</td>
 </tr>
 <tr>
-<td align="center">Email</td>
+<td align="center">Key</td>
 <td align="center">Entry</td>
-<td align="center">This is the email attached to your GPG Key</td>
+<td align="center">This is your AES key, You can either generate it by hitting 'Register' or entering a 256 Bit String</td>
 </tr>
 </tbody>
 </table>
@@ -475,7 +475,7 @@ you can refer to the following section.</p>
 <tr>
 <td align="center">Status</td>
 <td align="center">Label</td>
-<td align="center">This invisible status will show the status; Such as connection errors</td>
+<td align="center">This invisible status will make itself visible and show statuses such as connection errors</td>
 </tr>
 <tr>
 <td align="center">Downloading Files</td>
