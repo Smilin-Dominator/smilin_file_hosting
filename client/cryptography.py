@@ -40,7 +40,7 @@ class Crypto:
     def generate_key(self):
         gen = urandom(32)  # 32 Bytes -> 256 Bits
         self.key = gen
-        return hexlify(gen)
+        return hexlify(gen).decode('utf-8')
 
     def set_key(self, key: bytes):
         self.key = unhexlify(key)
