@@ -57,6 +57,8 @@ class CredentialsUI(QMainWindow):
         self.credentials_status: QLabel = None
         self.concurrent_downloads: QSpinBox = None
         self.concurrent_uploads: QSpinBox = None
+        self.downloaded_files_folder: QLineEdit = None
+        self.temp_folder: QLineEdit = None
 
         # Initial
         super(CredentialsUI, self).__init__()
@@ -97,6 +99,10 @@ class CredentialsUI(QMainWindow):
             "advanced": {
                 "concurrent_downloads": self.concurrent_downloads.value(),
                 "concurrent_uploads": self.concurrent_uploads.value()
+            },
+            "directories": {
+                "downloaded_files_folder": self.downloaded_files_folder.text(),
+                "temp_folder": self.temp_folder.text()
             }
         }
 
@@ -108,9 +114,9 @@ class CredentialsUI(QMainWindow):
         - If they aren't, it sets the status to "Not Enough Arguments!"
         """
         get = self.get_options()
-        text = [get["token"], get["link"], get["key"]]
+        text = [get["token"], get["link"], get["key"], get["directories"]["downloaded_files_folder"], get["directories"]["temp_folder"]]
         check = [i for i in text if i != ""]
-        if len(check) != 3:
+        if len(check) != 5:
             self.credentials_status.setText("Not Enough Arguments!")
         else:
             self.write_file(get)
@@ -147,11 +153,15 @@ class CredentialsUI(QMainWindow):
             w.write(dumps(options, indent=4))
             w.flush()
             w.close()
-        api = API(server=options["link"], username=options["username"], crypto=crypto)
+        download_dir = Path(options["directories"]["temp_folder"])
+        temp_dir = Path(options["directories"]["temp_folder"])
+        api = API(server=options["link"], username=options["username"], crypto=crypto, download_dir=download_dir, temp_dir=temp_dir)
         if not api.test_connection():
             self.credentials_status.setText("Connection Failed!")
             self.show()
         else:
+            crypto.files = download_dir
+            crypto.temp = temp_dir
             crypto.set_key(options["key"])
             self.close()
             main_window.show()
@@ -169,11 +179,15 @@ class CredentialsUI(QMainWindow):
         try:
             with open("credentials/config.json", "r") as r:
                 js = loads(r.read())
-                api = API(server=js["link"], username=js["token"], crypto=crypto)
+                download_dir = Path(js["directories"]["downloaded_files_folder"])
+                temp_dir = Path(js["directories"]["temp_folder"])
+                api = API(server=js["link"], username=js["token"], crypto=crypto, download_dir=download_dir, temp_dir=temp_dir)
                 if not api.test_connection():
                     self.credentials_status.setText("Connection Failed!")
                     return False
                 crypto.set_key(js["key"])
+                crypto.files = download_dir
+                crypto.temp = temp_dir
                 main_window.MAX_CONCURRENT_UPLOADS = js["advanced"]["concurrent_uploads"]
                 main_window.MAX_CONCURRENT_DOWNLOADS = js["advanced"]["concurrent_downloads"]
                 main_window.show()
@@ -400,8 +414,8 @@ class MainUI(QMainWindow):
 
 # Main Variables
 
-crypto = Crypto()
-api = API("", "", crypto)
+crypto = Crypto(None, None)
+api = API("", "", crypto, None, None)
 app = QApplication(argv)
 
 credentials_window = CredentialsUI()
