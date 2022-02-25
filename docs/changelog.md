@@ -55,3 +55,20 @@ delay when refreshing); But with AES, all file elements load near instantly.
 - The database has an additional column for the Initialization Vector used to Encrypt the File and Filename
 ### Fixes
 - None
+
+
+## v1.3.1
+I improved the credentials window by adding tabs. There's three so far;
+- Credentials
+- Directories
+- Advanced
+
+I also added support for choosing a Temporary Directory and a Files Directory; Which can be set in the credentials window, but the configuration file stays in the same location!
+
+### Features
+- Customizable Temp and Files Directories
+
+### Fixes
+- Changed the package 'cryptography' to 'pycryptodome' (Major Issue)
+- Displayed a String instead of Bytes in the Key Entry field (Major Issue)
+- Changed writing the key in the format "b'xxx'" to "xxx" (Major Issue)
