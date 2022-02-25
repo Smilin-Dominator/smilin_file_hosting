@@ -31,21 +31,23 @@ class API:
     This handles all the server interaction, such as Uploading, Downloading and Deleting.
     """
 
-    def __init__(self, server: str, username: str, crypto: Crypto):
+    def __init__(self, server: str, username: str, crypto: Crypto, download_dir: Path, temp_dir: Path):
         """
         The constructor accepts a Server (URL), a username and an instance of the Crypto class
 
         :param server: The URL to the Server
         :param username: The username/token obtained from registering
         :param crypto: An instance of the Crypto class
+        :param download_dir: The directory to download files to
+        :param temp_dir: The temporary file directory
         """
         self.server = server
         self.username = username
         self.base_url = furl(server)
         self.base_url.path.segments = [username]
         self.crypto = crypto
-        self.files = Path("files")
-        self.temp = Path("temp")
+        self.files = download_dir
+        self.temp = temp_dir
 
     def test_connection(self) -> bool:
         """
