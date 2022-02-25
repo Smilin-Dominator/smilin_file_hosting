@@ -26,11 +26,15 @@ from binascii import hexlify, unhexlify
 class Crypto:
     """ This class performs all the cryptographic operations. """
 
-    def __init__(self) -> None:
-        """ This initiates the paths 'files' and 'temp' """
+    def __init__(self, files: Path, temp: Path) -> None:
+        """
+        This sets the files and temp directories
+        :param files: The path to the directory to save the files to
+        :param temp: The temporary directory
+        """
         self.buffer_size = 65536  # 64 KB
-        self.files = Path("files")
-        self.temp = Path("temp")
+        self.files = files
+        self.temp = temp
         self.key: bytes = b""
 
     def generate_key(self):
