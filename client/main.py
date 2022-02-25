@@ -133,7 +133,7 @@ class CredentialsUI(QMainWindow):
             self.credentials_status.setText("Link Is Empty!")
         else:
             token = api.register(self.link_input.text())
-            self.key_input.setText(crypto.generate_key())
+            self.key_input.setText(str(crypto.generate_key()))
             self.credentials_status.setText("Successfully Registered!")
             self.token_input.setText(token)
 
