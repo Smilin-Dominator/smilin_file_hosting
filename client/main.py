@@ -84,6 +84,9 @@ class CredentialsUI(QMainWindow):
             if js.get("advanced") is not None:
                 self.concurrent_downloads.setValue(js.get("advanced").get("concurrent_downloads"))
                 self.concurrent_uploads.setValue(js.get("advanced").get("concurrent_uploads"))
+            if js.get("directories") is not None:
+                self.downloaded_files_folder.setText(js.get("directories").get("downloaded_files_folder"))
+                self.temp_folder.setText(js.get("directories").get("temp_folder"))
         self.show()
 
     def get_options(self) -> dict:
