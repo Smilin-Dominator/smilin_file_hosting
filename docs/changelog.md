@@ -82,3 +82,16 @@ I added import and export functions to the program. There are two new QPushButto
 
 ### Fixes
 - None
+
+
+## v1.3.3
+I handled all the known exceptions that make the program crash, and described why they occur. I also added
+two new exception types
+
+### Features
+- New Exceptions
+- Credentials' Status is more Descriptive
+- If the amount of files received from the request is not equal to the amount of TreeItems after decrypting, an error is raised
+
+### Fixes
+- Handled Errors, The Program Doesn't Crash Often
