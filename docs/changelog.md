@@ -72,3 +72,13 @@ I also added support for choosing a Temporary Directory and a Files Directory; W
 - Changed the package 'cryptography' to 'pycryptodome' (Major Issue)
 - Displayed a String instead of Bytes in the Key Entry field (Major Issue)
 - Changed writing the key in the format "b'xxx'" to "xxx" (Major Issue)
+
+
+## v1.3.2
+I added import and export functions to the program. There are two new QPushButtons in the Credentials UI.
+
+### Features
+- Import and Export Functions
+
+### Fixes
+- None
