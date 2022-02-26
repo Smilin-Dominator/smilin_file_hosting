@@ -59,6 +59,7 @@ class CredentialsUI(QMainWindow):
         self.concurrent_uploads: QSpinBox = None
         self.downloaded_files_folder: QLineEdit = None
         self.temp_folder: QLineEdit = None
+        self.file_chooser = QFileDialog()
 
         # Initial
         super(CredentialsUI, self).__init__()
@@ -67,15 +68,18 @@ class CredentialsUI(QMainWindow):
 
         # Post Initial
         self.connect_button.clicked.connect(self.credentials_connect)
-        self.register_button.clicked.connect(self.credentials_register)
+        self.register_button.clicked.connect(self.import_options)
 
-    def safe_show(self):
+    def safe_show(self, path: Path = None):
         """
         This parses the credential file and looks for the options. If the file doens't exist, this does
         not happen, but if it does exist, it'll write the values in the config file to the respective
         input in this window.
         """
-        config_file = Path("credentials/config.json")
+        if path is None:
+            config_file = Path("credentials/config.json")
+        else:
+            config_file = path
         if config_file.exists():
             js: dict = loads(open(config_file, "r").read())
             self.token_input.setText(js.get("token"))
@@ -89,12 +93,18 @@ class CredentialsUI(QMainWindow):
                 self.temp_folder.setText(js.get("directories").get("temp_folder"))
         self.show()
 
+    def import_options(self):
+        """
+        This imports all the options from a file and displays it
+        """
+        fn = self.file_chooser.getOpenFileName(self, "Import File", "config", "JSON Files (*.json)")[0]
+        self.safe_show(Path(fn))
+
     def export_options(self):
         """
         This gets all the current options and exports it to a filename of your choice
         """
-        chooser = QFileDialog()
-        filename = chooser.getSaveFileName(self, "Save File", "config", "JSON Files (*.json)", "w")[0]
+        filename = self.file_chooser.getSaveFileName(self, "Save File", "config", "JSON Files (*.json)")[0]
         with open(filename, "w+") as w:
             w.write(dumps(self.get_options(), indent=4))
             w.close()
