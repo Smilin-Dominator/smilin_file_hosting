@@ -59,6 +59,8 @@ class CredentialsUI(QMainWindow):
         self.concurrent_uploads: QSpinBox = None
         self.downloaded_files_folder: QLineEdit = None
         self.temp_folder: QLineEdit = None
+        self.import_settings_button: QPushButton = None
+        self.export_settings_button: QPushButton = None
         self.file_chooser = QFileDialog()
 
         # Initial
@@ -68,7 +70,9 @@ class CredentialsUI(QMainWindow):
 
         # Post Initial
         self.connect_button.clicked.connect(self.credentials_connect)
-        self.register_button.clicked.connect(self.import_options)
+        self.register_button.clicked.connect(self.credentials_register)
+        self.export_settings_button.clicked.connect(self.export_options)
+        self.import_settings_button.clicked.connect(self.import_options)
 
     def safe_show(self, path: Path = None):
         """
