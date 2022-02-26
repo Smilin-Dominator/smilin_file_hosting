@@ -184,8 +184,9 @@ class CredentialsUI(QMainWindow):
         download_dir = Path(options["directories"]["temp_folder"])
         temp_dir = Path(options["directories"]["temp_folder"])
         api = API(server=options["link"], username=options["token"], crypto=crypto, download_dir=download_dir, temp_dir=temp_dir)
-        if not api.test_connection():
-            self.credentials_status.setText("Connection Failed!")
+        success, statement = api.test_connection()
+        if not success:
+            self.credentials_status.setText(statement)
             self.show()
         else:
             crypto.files = download_dir
