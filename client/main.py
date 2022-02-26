@@ -89,6 +89,16 @@ class CredentialsUI(QMainWindow):
                 self.temp_folder.setText(js.get("directories").get("temp_folder"))
         self.show()
 
+    def export_options(self):
+        """
+        This gets all the current options and exports it to a filename of your choice
+        """
+        chooser = QFileDialog()
+        filename = chooser.getSaveFileName(self, "Save File", "config", "JSON Files (*.json)", "w")[0]
+        with open(filename, "w+") as w:
+            w.write(dumps(self.get_options(), indent=4))
+            w.close()
+
     def get_options(self) -> dict:
         """
         This parses the entry fields and returns a dictionary object
