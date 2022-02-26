@@ -23,6 +23,7 @@ from sys import argv
 from threading import Thread, Lock
 from concurrent.futures import ThreadPoolExecutor
 from binascii import unhexlify
+from errors import SetKeyError
 
 from PyQt6 import uic
 from PyQt6.QtCore import Qt
@@ -189,10 +190,13 @@ class CredentialsUI(QMainWindow):
         else:
             crypto.files = download_dir
             crypto.temp = temp_dir
-            crypto.set_key(options["key"])
-            self.close()
-            main_window.show()
-            main_window.list_items()
+            try:
+                crypto.set_key(options["key"])
+                self.close()
+                main_window.show()
+                main_window.list_items()
+            except SetKeyError:
+                self.credentials_status.setText("Invalid Key Length!")
 
     def read_file(self) -> bool:
         """
@@ -212,14 +216,17 @@ class CredentialsUI(QMainWindow):
                 if not api.test_connection():
                     self.credentials_status.setText("Connection Failed!")
                     return False
-                crypto.set_key(js["key"])
-                crypto.files = download_dir
-                crypto.temp = temp_dir
-                main_window.MAX_CONCURRENT_UPLOADS = js["advanced"]["concurrent_uploads"]
-                main_window.MAX_CONCURRENT_DOWNLOADS = js["advanced"]["concurrent_downloads"]
-                main_window.show()
-                main_window.list_items()
-                return True
+                try:
+                    crypto.set_key(js["key"])
+                    crypto.files = download_dir
+                    crypto.temp = temp_dir
+                    main_window.MAX_CONCURRENT_UPLOADS = js["advanced"]["concurrent_uploads"]
+                    main_window.MAX_CONCURRENT_DOWNLOADS = js["advanced"]["concurrent_downloads"]
+                    main_window.show()
+                    main_window.list_items()
+                    return True
+                except SetKeyError:
+                    self.credentials_status.setText("Invalid Key Length!")
         except FileNotFoundError:
             self.credentials_status.setText("File Not Found!")
             return False
