@@ -23,7 +23,7 @@ from sys import argv
 from threading import Thread, Lock
 from concurrent.futures import ThreadPoolExecutor
 from binascii import unhexlify
-from errors import SetKeyError
+from errors import SetKeyError, DecryptionError
 
 from PyQt6 import uic
 from PyQt6.QtCore import Qt
@@ -443,6 +443,8 @@ class MainUI(QMainWindow):
             t = time()
             with ThreadPoolExecutor(max_workers=4) as exe:
                 exe.map(insert_element, self.meta_class.files_ar)
+            if len(self.meta_class.files_ar) != self.meta_class.files.topLevelItemCount():
+                raise DecryptionError
             print("Took '{}' Seconds To Decrypt All Elements!".format(time() - t))
 
 
