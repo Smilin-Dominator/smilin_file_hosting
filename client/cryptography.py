@@ -20,7 +20,8 @@ from pathlib import Path
 from time import time_ns
 from Crypto.Cipher import AES
 from os import urandom
-from binascii import hexlify, unhexlify
+from errors import SetKeyError
+from binascii import hexlify, unhexlify, Error
 
 
 class Crypto:
@@ -42,8 +43,11 @@ class Crypto:
         self.key = gen
         return hexlify(gen).decode('utf-8')
 
-    def set_key(self, key: bytes):
-        self.key = unhexlify(key)
+    def set_key(self, key: str):
+        try:
+            self.key = unhexlify(key)
+        except Error:
+            raise SetKeyError(key)
 
     def decrypt_string(self, string: bytes, iv: bytes) -> str:
         """

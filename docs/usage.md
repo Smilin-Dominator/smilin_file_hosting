@@ -3,10 +3,7 @@ This section describes how to use the program.
 
 ## Server
 After issuing the `docker-compose up -d` command, the MySQL Database should start in about 30 Seconds, but the
-API might take about a minute or two, depending on your;
-
-* Network Speed (as it needs to install the requirements) 
-* Clock Speed (to start the API inside a Container).
+API might take about a minute or two.
 
 Afterwards, you can test the API by issuing the command `curl -X GET http://(server):2356/(token)/`, replacing
 `server` with the server's domain/ip and `token` with a random string. It should return `false`, as there's no
@@ -14,7 +11,6 @@ UUID registered (but if you used a registered token, it'll return True)
 
 All the Server Interaction is done through the client, so there's no need to use `curl` or `wget` to
 send requests to the server again.
-
 
 ## Client
 This guide assumes that you've performed all the actions mentioned in the installation page.
@@ -24,7 +20,13 @@ Upon first launch, you'll see a window called [credentials](#credentials-window)
 
 If it's your absolute first time setting up the client; Enter the `link` into the link field and hit
 register. If the link is valid, the `token` field should be filled with a random token. and a Key will be generated for you<br>
-Otherwise, just enter the link into the `link` field and your token into the `token` field, without hitting register.
+Otherwise, just enter the link into the `link` field and your token into the `token` and a key into the `key` field.
+
+If it's not your first time, you can also import the credentials from your previous configuration file with the import
+button.
+
+In the directories tab, set the Downloaded Files Directory and the Temporary Directory to the absolute paths of the 
+directories you want to use.
 
 In the advanced features section, input the maximum number of concurrent uploads and downloads that
 can take place parallely. I've found that 4 is the perfect balance for me, but you can change it. I've limited the
@@ -43,7 +45,7 @@ You will get this screen if;
 * The token is invalid.
 * You pressed 'credentials'
 
-In the first container (labeled "Credentials"), you'll see 3 Input fields;
+In the first tab (labeled "Credentials"), you'll see 3 Input fields;
 
 | Element | Type  |                                              Function                                               |
 |:-------:|:-----:|:---------------------------------------------------------------------------------------------------:|
@@ -51,20 +53,34 @@ In the first container (labeled "Credentials"), you'll see 3 Input fields;
 |  Link   | Entry |                                   This is the link to the server                                    |
 |   Key   | Entry | This is your AES key, You can either generate it by hitting 'Register' or entering a 256 Bit String |
 
-In the second container (labeled "Advanced Features"), you'll see 2 Number Input Boxes (SpinBoxes);
+In the second tab (labeled "Directories"), you'll see two Input Fields;
+
+| Element                 | Type  | Function                                                                |
+|-------------------------|-------|-------------------------------------------------------------------------|
+| Downloaded Files Folder | Entry | This is the directory that all the files you download get saved at      |
+| Temp Folder             | Entry | This is the directory that the temporary files are stored (and deleted) |
+
+In the third tab (labeled "Advanced Features"), you'll see 2 Number Input Boxes (SpinBoxes);
 
 |       Element        |  Type   |                         Function                          |
 |:--------------------:|:-------:|:---------------------------------------------------------:|
 | Concurrent Downloads | SpinBox | The maximum amount of download threads to run in parallel |
 |  Concurrent Uploads  | SpinBox |  The maximum amount of upload threads to run in parallel  |
 
+In the second container (labeled "Status"), you'll see a Label;
 
-In the third container (labeled "Operations"), you'll see 2 Buttons and 1 Label;
+| Element | Type  | Function                                                                        |
+|---------|-------|---------------------------------------------------------------------------------|
+| Status  | Label | This invisible label will display the status; Such as connection errors and all |
+
+
+In the last container (labeled "Operations"), you'll see 4 Buttons;
 
 |     Element      |  Type  |                                                          Function                                                           |
 |:----------------:|:------:|:---------------------------------------------------------------------------------------------------------------------------:|
 |     Register     | Button |                      If the link isn't empty, this will try and connect to the server and register you                      |
-|      Status      | Label  |                       This invisible label will display the status; Such as connection errors and all                       |
+| Import Settings  | Button |                                       This will import your settings from a JSON file                                       |
+| Export Settings  | Button |                                        This will export your settings to a JSON file                                        |
 | Save and Connect | Button | This will overwrite the options in 'credentials/config.json' with the new credentials you entered and connect to the server |
 
 

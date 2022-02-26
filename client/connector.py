@@ -19,7 +19,8 @@
 from copy import deepcopy
 from pathlib import Path
 from furl import furl
-from requests import get, post, delete, ConnectionError
+from requests import get, post, delete
+from requests.exceptions import ConnectionError, MissingSchema
 from cryptography import Crypto
 from binascii import hexlify, unhexlify
 from base64 import b64decode
@@ -49,7 +50,7 @@ class API:
         self.files = download_dir
         self.temp = temp_dir
 
-    def test_connection(self) -> bool:
+    def test_connection(self) -> [bool, str]:
         """
         This tests the connection and returns False if it can't connect, and true if it can.
 
@@ -57,15 +58,21 @@ class API:
         """
         try:
             req = get(self.base_url.tostr())
-            if (req.status_code == 404) or (req.content == b"false"):
+            if req.status_code == 404:
                 print(f"[*] Connection Failed To URL: '{self.base_url.tostr()}'")
-                return False
+                return False, "Server Not Found!"
+            elif req.content == b"false":
+                print(f"[*] User '{self.username}' Doesn't Exist!")
+                return False, "User Doesn't Exist!"
             else:
                 print(f"[*] Connection Succeeded to URL: '{self.base_url.tostr()}'")
-                return True
+                return True, None
+        except MissingSchema:
+            print("[*] Invalid URL: '{}'".format(self.base_url.tostr()))
+            return False, "Invalid URL Format"
         except ConnectionError:
             print(f"[*] Connection Failed To URL: '{self.base_url.tostr()}'")
-            return False
+            return False, "Connection Failed"
 
     def set_username(self, user: str):
         """

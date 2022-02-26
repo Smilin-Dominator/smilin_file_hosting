@@ -23,6 +23,7 @@ from sys import argv
 from threading import Thread, Lock
 from concurrent.futures import ThreadPoolExecutor
 from binascii import unhexlify
+from errors import SetKeyError, DecryptionError
 
 from PyQt6 import uic
 from PyQt6.QtCore import Qt
@@ -183,16 +184,20 @@ class CredentialsUI(QMainWindow):
         download_dir = Path(options["directories"]["temp_folder"])
         temp_dir = Path(options["directories"]["temp_folder"])
         api = API(server=options["link"], username=options["token"], crypto=crypto, download_dir=download_dir, temp_dir=temp_dir)
-        if not api.test_connection():
-            self.credentials_status.setText("Connection Failed!")
+        success, statement = api.test_connection()
+        if not success:
+            self.credentials_status.setText(statement)
             self.show()
         else:
             crypto.files = download_dir
             crypto.temp = temp_dir
-            crypto.set_key(options["key"])
-            self.close()
-            main_window.show()
-            main_window.list_items()
+            try:
+                crypto.set_key(options["key"])
+                self.close()
+                main_window.show()
+                main_window.list_items()
+            except SetKeyError:
+                self.credentials_status.setText("Invalid Key Length!")
 
     def read_file(self) -> bool:
         """
@@ -212,14 +217,17 @@ class CredentialsUI(QMainWindow):
                 if not api.test_connection():
                     self.credentials_status.setText("Connection Failed!")
                     return False
-                crypto.set_key(js["key"])
-                crypto.files = download_dir
-                crypto.temp = temp_dir
-                main_window.MAX_CONCURRENT_UPLOADS = js["advanced"]["concurrent_uploads"]
-                main_window.MAX_CONCURRENT_DOWNLOADS = js["advanced"]["concurrent_downloads"]
-                main_window.show()
-                main_window.list_items()
-                return True
+                try:
+                    crypto.set_key(js["key"])
+                    crypto.files = download_dir
+                    crypto.temp = temp_dir
+                    main_window.MAX_CONCURRENT_UPLOADS = js["advanced"]["concurrent_uploads"]
+                    main_window.MAX_CONCURRENT_DOWNLOADS = js["advanced"]["concurrent_downloads"]
+                    main_window.show()
+                    main_window.list_items()
+                    return True
+                except SetKeyError:
+                    self.credentials_status.setText("Invalid Key Length!")
         except FileNotFoundError:
             self.credentials_status.setText("File Not Found!")
             return False
@@ -436,6 +444,8 @@ class MainUI(QMainWindow):
             t = time()
             with ThreadPoolExecutor(max_workers=4) as exe:
                 exe.map(insert_element, self.meta_class.files_ar)
+            if len(self.meta_class.files_ar) != self.meta_class.files.topLevelItemCount():
+                raise DecryptionError
             print("Took '{}' Seconds To Decrypt All Elements!".format(time() - t))
 
 
