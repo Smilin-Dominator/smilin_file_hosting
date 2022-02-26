@@ -19,7 +19,8 @@
 from copy import deepcopy
 from pathlib import Path
 from furl import furl
-from requests import get, post, delete, ConnectionError
+from requests import get, post, delete
+from requests.exceptions import ConnectionError, MissingSchema
 from cryptography import Crypto
 from binascii import hexlify, unhexlify
 from base64 import b64decode
@@ -63,6 +64,9 @@ class API:
             else:
                 print(f"[*] Connection Succeeded to URL: '{self.base_url.tostr()}'")
                 return True
+        except MissingSchema:
+            print("[*] Invalid URL: '{}'".format(self.base_url.tostr()))
+            return False
         except ConnectionError:
             print(f"[*] Connection Failed To URL: '{self.base_url.tostr()}'")
             return False
