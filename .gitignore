@@ -49,10 +49,11 @@ venv/
 !client/environment.yml
 !*\docker-compose.yml
 
-# Docker Data
-server/db
-server/venv
-server/files
+# Server
+server/*.js
+server/node_modules/
+server/db/
+server/files/
 
 # Client Data
 client/credentials/

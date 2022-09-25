@@ -1,34 +1,31 @@
 version: "3.9"
-services:
-  mariadb:
-    image: mariadb:latest
-    container_name: MariaDB
-    restart: unless-stopped
-    networks:
-      - main
-    environment:
-      MARIADB_DATABASE: app
-      MARIADB_USER: test
-      MARIADB_PASSWORD: 123
-      MARIADB_ROOT_PASSWORD: override
-    ports:
-      - "3306:3306"
-    volumes:
-      - "./db:/var/lib/mysql"
-  api:
-    image: python:3.10-buster
-    container_name: API
-    restart: unless-stopped
-    working_dir: /app
-    command:
-      - ./run.sh
-    networks:
-      - main
-    ports:
-      - "2356:2356"
-    volumes:
-      - ".:/app"
-      - "./files:/files"
 networks:
   main:
     driver: bridge
+services:
+  cassandra:
+    image: bitnami/cassandra
+    container_name: cassandra
+    restart: unless-stopped
+    networks:
+      - main
+    ports:
+      - "9042:9042"
+    volumes:
+      - "./db/cassandra:/bitnami/cassandra/data"
+    environment:
+      CASSANDRA_PASSWORD_SEEDER: "yes"
+      CASSANDRA_USER: "api"
+      CASSANDRA_PASSWORD: "Nhth3td.ZY_@wHw9agws"
+  redis:
+    image: bitnami/redis
+    container_name: redis
+    restart: unless-stopped
+    networks:
+      - main
+    ports:
+      - "6379:6379"
+    volumes:
+      - './db/redis:/bitnami/redis/data'
+    environment:
+      REDIS_PASSWORD: "z-crBrrXvDm@!or@fA33"
