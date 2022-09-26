@@ -70,6 +70,20 @@ namespace Cassandra {
     }
 
     /**
+     * This returns the filename that the file is saved under
+     * @param user_id The user's id
+     * @param file_id The file's id
+     * @return the stored filename
+     */
+    export async function getStoredFilename(user_id: types.Uuid, file_id: types.Uuid): Promise<string | undefined> {
+        const res = await client.execute(`SELECT stored_filename FROM app.files WHERE uid = ? AND id = ?`, [ user_id, file_id ]);
+        if (res.rowLength == 0) {
+            return undefined;
+        }
+        return res.first().get('stored_filename');
+    }
+
+    /**
      * This accepts the user id and file id and deletes the file data from the database
      * @param user_id The user's id
      * @param file_id The file's id

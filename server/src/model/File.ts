@@ -11,14 +11,18 @@ export interface File {
 }
 
 export function convertRowToFile(row: types.Row): File {
-    return {
-        id: row.get("id"),
-        uid: row.get("uid"),
-        encrypted_filename: row.get("encrypted_filename"),
-        iv: row.get("iv"),
-        stored_filename: row.get("stored_filename"),
-        date_added: row.get("date_added")
-    };
+    let obj: Partial<File> = {};
+    if (row != null) {
+        obj = {
+            id: row.get("id"),
+            uid: row.get("uid"),
+            encrypted_filename: row.get("encrypted_filename"),
+            iv: row.get("iv"),
+            stored_filename: row.get("stored_filename"),
+            date_added: row.get("date_added")
+        };
+    }
+    return obj as File;
 }
 
 export function createFileObject(uid: types.Uuid, iv: Buffer, encrypted_filename: Buffer, id?: types.Uuid, date_added?: number, stored_filename?: string): File {
