@@ -28,7 +28,9 @@ namespace Redis {
         const access_token = createHash('sha512')
             .update(salt_and_peppered)
             .digest('hex');
-        await client.set(access_token, user_id);
+        await client.set(access_token, user_id, {
+            EX: 2629800, // Expire => 1 Month
+        });
         return access_token;
     }
 
