@@ -61,7 +61,7 @@ namespace Cassandra {
      */
     export async function getFileInfo(user_id: types.Uuid, file_id: types.Uuid): Promise<File> {
         const res = await client.execute(`
-            SELECT (id, encrypted_filename, iv, date_added) 
+            SELECT id, encrypted_filename, iv, date_added 
             FROM app.files 
             WHERE uid = ? AND id = ?
             LIMIT 1
