@@ -15,6 +15,7 @@ namespace Redis {
             url: url,
             password: password,
         });
+        await client.connect();
     }
 
     /**
