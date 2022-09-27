@@ -8,6 +8,22 @@ import {Stream} from "stream";
 
 export namespace FilesController {
 
+    export const downloadFile = async (req: Request, res: Response) => {
+        const user_id = types.Uuid.fromString(req.user_id!);
+        const file_id = types.Uuid.fromString(req.file_id!);
+        const stored_filename = await Cassandra.getStoredFilename(user_id, file_id);
+        if (stored_filename == undefined) {
+            res.status(401).json({
+                success: false,
+                error: "No such file exists!"
+            });
+        } else {
+            res.status(200).sendFile(stored_filename, {
+                root: path.join(process.cwd(), 'files'),
+            });
+        }
+    }
+
     export const listFiles = async (req: Request, res: Response) => {
         const user_id = types.Uuid.fromString(req.user_id!);
         const limit = req.query.limit != undefined ? parseInt(req.query.limit as string) : 10;
