@@ -5,6 +5,7 @@ import {FileID} from "../middleware/file-id";
 
 const router = Router();
 
+router.get('/list', Authorization, FilesController.listFiles);
 router.get('/describe', Authorization, FileID.QueryParams, FilesController.describeFileHandler);
 router.post('/upload', Authorization, FilesController.addFileHandler);
 router.put('/update', Authorization, FileID.QueryParams, FilesController.updateFileHandler);

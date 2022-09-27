@@ -8,6 +8,20 @@ import {Stream} from "stream";
 
 export namespace FilesController {
 
+    export const listFiles = async (req: Request, res: Response) => {
+        const user_id = types.Uuid.fromString(req.user_id!);
+        const limit = req.query.limit != undefined ? parseInt(req.query.limit as string) : 10;
+        const prevPageState = req.query.page_state as string;
+        const [files, pageState] = await Cassandra.getFiles(user_id, limit, prevPageState);
+        res.status(200).json({
+            success: true,
+            data: {
+                page_state: pageState,
+                files: files,
+            }
+        });
+    }
+
     export const describeFileHandler = async (req: Request, res: Response) => {
         const user_id = types.Uuid.fromString(req.user_id!);
         const file_id = types.Uuid.fromString(req.file_id!);
@@ -45,12 +59,12 @@ export namespace FilesController {
         let encrypted_filename: Buffer;
         let fileObject: File;
 
-        req.busboy.on('field', (name: string, value: Buffer | Stream, _info: any) => {
+        req.busboy.on('field', (name: string, value: Buffer, _info: any) => {
             if (name == "iv") {
-                iv = value as Buffer;
+                iv = value;
             }
             if (name == "encrypted_filename") {
-                encrypted_filename = value as Buffer;
+                encrypted_filename = value;
             }
         });
 
@@ -116,6 +130,7 @@ export namespace FilesController {
                 const writeStream = fs.createWriteStream(newPath);
 
                 file.pipe(writeStream); // write the file to disk
+                req.busboy.emit('finish');
 
             }
         });

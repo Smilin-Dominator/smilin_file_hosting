@@ -52,6 +52,27 @@ namespace Cassandra {
     // Files
 
     /**
+     * This accepts the user id, file id, limit and page state and returns the next page of results
+     * @param user_id The user's id
+     * @param limit The number of rows to fetch
+     * @param pageState The state
+     * @return A list of files and the page state
+     */
+    export async function getFiles(user_id: types.Uuid, limit: number, pageState?: string): Promise<[File[], string]> {
+        const res = await client.execute(`
+            SELECT id, encrypted_filename, iv, date_added
+            FROM app.files
+            WHERE uid = ?
+        `, [ user_id ], {
+            ...queryOpts,
+            fetchSize: limit,
+            pageState: pageState,
+        });
+        const files = res.rows.map(row => convertRowToFile(row));
+        return [files, res.pageState];
+    }
+
+    /**
      * This accepts the user id and the file id and returns the file's ID, Encrypted Filename, Initialization Vector
      * and the date and time it was added
      * @param user_id The user's id
