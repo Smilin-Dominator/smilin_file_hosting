@@ -13,10 +13,10 @@ namespace Cassandra {
      * @param contact_points URLs of Cassandra nodes
      * @param datacenter The datacenter
      */
-    export async function setup(username: string, password: string, contact_points: string[], datacenter?: string) {
+    export async function setup(username: string, password: string, contact_points: string[], datacenter: string) {
         client = new Client({
             contactPoints: contact_points,
-            localDataCenter: datacenter ?? "datacenter1",
+            localDataCenter: datacenter,
             credentials: {
                 username: username,
                 password: password,
