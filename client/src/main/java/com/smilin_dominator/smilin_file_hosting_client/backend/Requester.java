@@ -4,22 +4,36 @@ import java.io.IOException;
 import java.util.Optional;
 import com.smilin_dominator.smilin_file_hosting_client.common.JSON;
 import com.smilin_dominator.smilin_file_hosting_client.model.User;
+import com.smilin_dominator.smilin_file_hosting_client.model.File;
 import com.smilin_dominator.smilin_file_hosting_client.model.response.DeleteUserResponse;
+import com.smilin_dominator.smilin_file_hosting_client.model.response.FileUploadUpdateResponse;
 import com.smilin_dominator.smilin_file_hosting_client.model.response.LoginRegisterResponse;
+import java.nio.file.Path;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.HttpClient;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.HttpClients;
 
 public class Requester {
         
     private final HttpClient http = HttpClients.createDefault();
-    private String access_token;
+    private final String access_token;
+    private final Crypto crypto;
+
+    // Constructor
     
-    public void setAccessToken(String access_token) {
+    public Requester(String access_token, Crypto crypto) {
         this.access_token = access_token;
+        this.crypto = crypto;
     }
     
     // Helper Methods
@@ -65,11 +79,38 @@ public class Requester {
      * @throws IOException If the program can't get the content of the response
      */
     public boolean delete() throws IOException {
-        final HttpDelete request = new HttpDelete(URL.DELETE);
+        final HttpDelete request = new HttpDelete(URL.DELETE_USER);
         addAuthorizationHeader(request);
         final HttpEntity response = http.execute(request).getEntity();
         final DeleteUserResponse res = JSON.parseInputStream(response.getContent(), DeleteUserResponse.class);
         return res.getSuccess();
+    }
+    
+    // Files
+    
+    public boolean uploadFile (Path path) throws IOException {
+        
+        final byte[] iv = this.crypto.generateIV();
+        final String filename = path.getFileName().toString();
+        final byte[] encrypted_filename = this.crypto.encryptFilename(filename, iv);
+        final Path encrypted_file = crypto.createTempFile();
+        this.crypto.encryptFile(path, encrypted_file, iv);
+        
+        // Request
+        final HttpPost request = new HttpPost(URL.UPLOAD);
+        final MultipartEntityBuilder bodyBuilder = MultipartEntityBuilder.create();
+        bodyBuilder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+        bodyBuilder.addBinaryBody("iv", iv);
+        bodyBuilder.addBinaryBody("encrypted_filename", encrypted_filename);
+        bodyBuilder.addBinaryBody("file", encrypted_file.toFile());
+        request.setEntity(bodyBuilder.build());
+        addAuthorizationHeader(request);
+        
+        // Response
+        final HttpEntity response = http.execute(request).getEntity();
+        final FileUploadUpdateResponse res = JSON.parseInputStream(response.getContent(), FileUploadUpdateResponse.class);
+        return res.isSuccess();
+        
     }
     
 }

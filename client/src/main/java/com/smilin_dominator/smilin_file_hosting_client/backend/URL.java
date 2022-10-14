@@ -9,6 +9,9 @@ public abstract class URL {
     // User
     public static final URI REGISTER = URI.create(BASE + "/user/register");
     public static final URI LOGIN = URI.create(BASE + "/user/login");
-    public static final URI DELETE = URI.create(BASE + "/user/delete");
+    public static final URI DELETE_USER = URI.create(BASE + "/user/delete");
+    
+    // File
+    public static final URI UPLOAD = URI.create(BASE + "/files/upload");
     
 }

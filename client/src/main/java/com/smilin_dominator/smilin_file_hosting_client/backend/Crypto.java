@@ -59,7 +59,7 @@ public class Crypto {
      * This creates a temporary file and returns its path
      * @return The path to the temporary file
      */
-    private Path createTempFile() {
+    public Path createTempFile() {
         Path path = null;
         try {
             path = Files.createTempFile(this.generateRandomString(32), ".sfh");
@@ -130,7 +130,9 @@ public class Crypto {
      * @return A new iv
      */
     public byte[] generateIV() {
-        return new byte[16];
+        byte[] bytes = new byte[16];
+        new Random().nextBytes(bytes);
+        return bytes;
     }
     
     // Encrypting Methods

@@ -9,9 +9,9 @@ public class File {
     // Fields
     
     private UUID file_id;
-    private ByteBuffer encrypted_filename;
-    private ByteBuffer iv;
-    private Date date;
+    private byte[] encrypted_filename;
+    private byte[] iv;
+    private Long date;
     
     // Getters + Setters
 
@@ -23,27 +23,27 @@ public class File {
         this.file_id = file_id;
     }
 
-    public ByteBuffer getEncryptedFilename() {
+    public byte[] getEncryptedFilename() {
         return encrypted_filename;
     }
 
-    public void setEncryptedFilename(ByteBuffer encrypted_filename) {
+    public void setEncryptedFilename(byte[] encrypted_filename) {
         this.encrypted_filename = encrypted_filename;
     }
 
-    public ByteBuffer getIv() {
+    public byte[] getIv() {
         return iv;
     }
 
-    public void setIv(ByteBuffer iv) {
+    public void setIv(byte[] iv) {
         this.iv = iv;
     }
 
-    public Date getDate() {
+    public Long getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(Long date) {
         this.date = date;
     }
     
